@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Car, Users, CalendarCheck,
   Wrench, BarChart3, LogOut, Shield, ChevronRight,
-  Truck, Navigation,
+  Truck, Navigation, Smartphone,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -79,6 +79,39 @@ export default function Sidebar({ collapsed, onToggle }) {
           </NavLink>
         ))}
       </nav>
+
+      {/* Driver App link */}
+      <div className="px-2 pb-2">
+        <NavLink
+          to="/driver"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${
+              isActive
+                ? 'bg-gold-500/15 text-gold-400 border border-gold-500/30'
+                : 'text-slate-400 hover:bg-navy-700/60 hover:text-slate-200'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <Smartphone size={18} className={isActive ? 'text-gold-400' : ''} />
+              {!collapsed && (
+                <span className="text-sm font-medium">Driver App</span>
+              )}
+              {!collapsed && (
+                <span className="ml-auto text-xs bg-gold-500/20 text-gold-400 border border-gold-500/30 px-1.5 py-0.5 rounded-full font-semibold">
+                  PWA
+                </span>
+              )}
+              {collapsed && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-navy-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border border-navy-600">
+                  Driver App
+                </div>
+              )}
+            </>
+          )}
+        </NavLink>
+      </div>
 
       {/* User */}
       <div className="border-t border-navy-600/60 p-3">

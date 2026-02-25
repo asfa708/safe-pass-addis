@@ -13,6 +13,7 @@ import ClientsPage from './pages/ClientsPage';
 import MaintenancePage from './pages/MaintenancePage';
 import ReportsPage from './pages/ReportsPage';
 import GPSTrackingPage from './pages/GPSTrackingPage';
+import DriverApp from './driver-app/DriverApp';
 
 function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -56,6 +57,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={currentUser ? <Navigate to="/" /> : <LoginPage />} />
+      <Route path="/driver/*" element={<DriverApp />} />
       <Route path="/*" element={<AppLayout />} />
     </Routes>
   );

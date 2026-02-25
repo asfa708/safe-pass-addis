@@ -1,0 +1,769 @@
+/* ── Safe-Pass Driver App — Mobile-first CSS ─────────────────────────────── */
+
+/* Base reset for driver app scope */
+.da-shell *, .da-screen * {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Shell layout ─────────────────────────────────────────────────────────── */
+.da-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #0a0a0a;
+  color: #f1f1f1;
+  font-family: 'Inter', system-ui, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Top bar ──────────────────────────────────────────────────────────────── */
+.da-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #111;
+  border-bottom: 1px solid #222;
+  flex-shrink: 0;
+}
+
+.da-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.da-topbar-logo { font-size: 22px; }
+
+.da-topbar-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFD700;
+  letter-spacing: 0.3px;
+}
+
+.da-topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+.da-topbar-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #ccc;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.da-topbar-btn:active { opacity: 0.7; transform: scale(0.97); }
+
+.da-topbar-logout {
+  color: #f87171;
+  border-color: #3f1111;
+}
+
+/* ── Main content ─────────────────────────────────────────────────────────── */
+.da-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Screens ──────────────────────────────────────────────────────────────── */
+.da-screen {
+  min-height: 100%;
+  padding: 16px 16px 24px;
+}
+
+/* ── Login screen ─────────────────────────────────────────────────────────── */
+.da-login-bg {
+  background: linear-gradient(160deg, #0a0a0a 0%, #111108 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 24px;
+  position: relative;
+}
+
+.da-lang-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFD700;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.da-login-card {
+  width: 100%;
+  max-width: 360px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 20px;
+  padding: 32px 24px;
+}
+
+.da-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.da-logo-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 12px #FFD70060);
+}
+
+.da-logo-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #FFD700;
+  margin: 0 0 4px;
+}
+
+.da-logo-sub {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.da-form { display: flex; flex-direction: column; gap: 16px; }
+
+.da-field { display: flex; flex-direction: column; gap: 6px; }
+
+.da-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #aaa;
+}
+
+.da-input {
+  padding: 16px 14px;
+  background: #1a1a1a;
+  border: 1.5px solid #333;
+  border-radius: 12px;
+  color: #f1f1f1;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.da-input:focus { border-color: #FFD700; }
+.da-input::placeholder { color: #555; }
+
+.da-error {
+  background: #1f0f0f;
+  border: 1px solid #7f1d1d;
+  color: #fca5a5;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.da-btn-primary {
+  padding: 18px;
+  background: #FFD700;
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+.da-btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+
+.da-btn-secondary {
+  padding: 14px;
+  background: #1a1a1a;
+  color: #aaa;
+  border: 1px solid #333;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.da-login-footer {
+  text-align: center;
+  color: #444;
+  font-size: 12px;
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+
+/* ── Home screen ──────────────────────────────────────────────────────────── */
+.da-home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.da-greeting {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 2px;
+}
+
+.da-subtext {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.da-stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #FFD70015;
+  border: 1px solid #FFD70040;
+  border-radius: 12px;
+  padding: 8px 16px;
+  min-width: 60px;
+}
+
+.da-stat-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #FFD700;
+  line-height: 1;
+}
+
+.da-stat-label {
+  font-size: 10px;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.da-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.da-tabs::-webkit-scrollbar { display: none; }
+
+.da-tab {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #888;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.da-tab-active {
+  background: #FFD70020;
+  border-color: #FFD700;
+  color: #FFD700;
+}
+
+.da-tab-badge {
+  background: #FFD700;
+  color: #000;
+  font-size: 10px;
+  font-weight: 800;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.da-rides-list { display: flex; flex-direction: column; gap: 12px; }
+
+.da-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #555;
+}
+.da-empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+
+/* ── Ride card ────────────────────────────────────────────────────────────── */
+.da-ride-card {
+  border: 1.5px solid;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.da-ride-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.da-status-pill {
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid;
+  border-radius: 20px;
+  padding: 4px 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.da-ride-time {
+  font-size: 12px;
+  color: #666;
+}
+
+.da-ride-passenger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.da-passenger-icon { font-size: 28px; flex-shrink: 0; }
+
+.da-passenger-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.da-passenger-sub {
+  font-size: 11px;
+  color: #666;
+  margin: 0;
+}
+
+.da-call-btn {
+  margin-left: auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #0f2d1a;
+  border: 1.5px solid #4ade80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+}
+.da-call-btn:active { transform: scale(0.92); }
+
+/* ── Route display ────────────────────────────────────────────────────────── */
+.da-route {
+  background: #111;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.da-route-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.da-route-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.da-dot-green { background: #4ade80; box-shadow: 0 0 6px #4ade8060; }
+.da-dot-gold  { background: #FFD700; box-shadow: 0 0 6px #FFD70060; }
+
+.da-route-line {
+  width: 2px;
+  height: 12px;
+  background: #333;
+  margin-left: 5px;
+}
+
+.da-route-label {
+  font-size: 10px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.da-route-addr {
+  font-size: 14px;
+  color: #ddd;
+  margin: 2px 0 0;
+  line-height: 1.3;
+}
+
+/* ── Ride actions ─────────────────────────────────────────────────────────── */
+.da-ride-actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.da-nav-wrapper { position: relative; flex: 1; }
+
+.da-btn-nav {
+  width: 100%;
+  padding: 14px;
+  background: #1a1a1a;
+  border: 1.5px solid #333;
+  border-radius: 12px;
+  color: #ccc;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.da-btn-nav:active { transform: scale(0.97); }
+
+.da-nav-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 -8px 24px #00000080;
+}
+
+.da-nav-option {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #222;
+  color: #ddd;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.da-nav-option:last-child { border-bottom: none; }
+.da-nav-option:active { background: #222; }
+
+.da-btn-status {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.2px;
+}
+.da-btn-status:active { transform: scale(0.97); opacity: 0.9; }
+
+/* ── Checklist screen ─────────────────────────────────────────────────────── */
+.da-section-header { margin-bottom: 16px; }
+
+.da-section-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.da-section-sub {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.da-progress-wrap { margin-bottom: 20px; }
+
+.da-progress-bar {
+  height: 8px;
+  background: #1a1a1a;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.da-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.da-progress-label {
+  font-size: 12px;
+  color: #666;
+  text-align: right;
+  margin: 0;
+}
+
+.da-checklist-items { display: flex; flex-direction: column; gap: 8px; }
+
+.da-check-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 14px;
+  background: #111;
+  border: 1.5px solid #222;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  width: 100%;
+}
+.da-check-item:active { transform: scale(0.98); }
+.da-check-item-done { background: #0a1a0a; border-color: #4ade8040; }
+
+.da-checkbox {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 2px solid #444;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #4ade80;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.da-checkbox-checked {
+  background: #4ade8020;
+  border-color: #4ade80;
+}
+
+.da-check-label {
+  font-size: 15px;
+  color: #ccc;
+  line-height: 1.4;
+  flex: 1;
+}
+.da-check-item-done .da-check-label {
+  color: #888;
+  text-decoration: line-through;
+  text-decoration-color: #4ade8060;
+}
+
+.da-checklist-footer { margin-top: 20px; }
+
+.da-checklist-success {
+  text-align: center;
+  padding: 24px;
+  background: #0a1a0a;
+  border: 1.5px solid #4ade8040;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.da-success-icon { font-size: 40px; }
+.da-success-text { font-size: 16px; font-weight: 700; color: #4ade80; margin: 0; }
+
+.da-checklist-pending {
+  text-align: center;
+  padding: 16px;
+  color: #666;
+}
+.da-pending-text { font-size: 14px; margin: 0 0 4px; }
+.da-pending-count { font-size: 12px; color: #FFD700; margin: 0; }
+
+/* ── Documents screen ─────────────────────────────────────────────────────── */
+.da-driver-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.da-driver-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #FFD70020;
+  border: 1.5px solid #FFD70040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: #FFD700;
+  flex-shrink: 0;
+}
+
+.da-driver-name { font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 2px; }
+.da-driver-meta { font-size: 12px; color: #666; margin: 0; }
+
+.da-driver-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.da-mini-stat { text-align: center; }
+.da-mini-num { font-size: 15px; font-weight: 700; color: #FFD700; margin: 0; }
+.da-mini-label { font-size: 10px; color: #666; margin: 0; }
+
+.da-docs-list { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+
+.da-doc-card {
+  background: #111;
+  border: 1.5px solid;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.da-doc-top { display: flex; align-items: center; gap: 12px; }
+
+.da-doc-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.da-doc-name { font-size: 15px; font-weight: 700; color: #fff; margin: 0 0 4px; }
+.da-doc-expiry { font-size: 12px; margin: 0; font-weight: 600; }
+.da-valid { color: #4ade80; }
+.da-expiring { color: #fb923c; }
+.da-expired { color: #f87171; }
+
+.da-doc-photo-wrap {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1a1a1a;
+  border: 1px dashed #333;
+}
+
+.da-doc-photo { width: 100%; height: 100%; object-fit: cover; }
+
+.da-doc-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  gap: 6px;
+  font-size: 32px;
+}
+.da-doc-placeholder p { font-size: 13px; margin: 0; }
+
+.da-btn-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: #1a1a1a;
+  border: 1.5px solid #333;
+  border-radius: 12px;
+  color: #ccc;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.da-btn-upload:active { transform: scale(0.97); }
+
+/* ── Bottom navigation ────────────────────────────────────────────────────── */
+.da-bottom-nav {
+  display: flex;
+  background: #111;
+  border-top: 1px solid #222;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+
+.da-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+}
+
+.da-nav-icon { font-size: 24px; line-height: 1; }
+
+.da-nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+}
+
+.da-nav-item-active .da-nav-label { color: #FFD700; }
+.da-nav-item-active .da-nav-icon { filter: drop-shadow(0 0 6px #FFD70080); }
+
+.da-nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: #FFD700;
+  border-radius: 0 0 3px 3px;
+}
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+.da-checklist { background: #0a0a0a; }
+.da-home { background: #0a0a0a; }
+.da-docs { background: #0a0a0a; }

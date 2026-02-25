@@ -25,7 +25,7 @@ function DriverShell() {
       <header className="da-topbar">
         <div className="da-topbar-brand">
           <span className="da-topbar-logo">🚗</span>
-          <span className="da-topbar-name">Safe-Pass</span>
+          <span className="da-topbar-name">Theodorus</span>
         </div>
         <div className="da-topbar-actions">
           <button onClick={toggleLang} className="da-topbar-btn">

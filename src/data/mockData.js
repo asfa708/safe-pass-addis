@@ -1,4 +1,4 @@
-// Safe-Pass Addis — Mock Data
+// Theodorus — Mock Data
 
 export const RIDE_STATUSES = [
   { value: 'new',       color: 'status-new' },
@@ -77,6 +77,7 @@ export const SERVICE_TIERS = [
 export const initialDrivers = [
   {
     id: 'd1',
+    employeeNumber: 1001,
     name: 'Abebe Girma',
     phone: '+251911234567',
     email: 'abebe@safepass.et',
@@ -92,6 +93,7 @@ export const initialDrivers = [
   },
   {
     id: 'd2',
+    employeeNumber: 1002,
     name: 'Dawit Bekele',
     phone: '+251922345678',
     email: 'dawit@safepass.et',
@@ -107,6 +109,7 @@ export const initialDrivers = [
   },
   {
     id: 'd3',
+    employeeNumber: 1003,
     name: 'Yonas Tadesse',
     phone: '+251933456789',
     email: 'yonas@safepass.et',
@@ -122,6 +125,7 @@ export const initialDrivers = [
   },
   {
     id: 'd4',
+    employeeNumber: 1004,
     name: 'Hana Mulatu',
     phone: '+251944567890',
     email: 'hana@safepass.et',
@@ -137,6 +141,7 @@ export const initialDrivers = [
   },
   {
     id: 'd5',
+    employeeNumber: 1005,
     name: 'Samuel Tesfaye',
     phone: '+251955678901',
     email: 'samuel@safepass.et',

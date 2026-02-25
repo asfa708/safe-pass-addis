@@ -41,9 +41,11 @@ export function AppProvider({ children }) {
 
   // Drivers
   const addDriver = useCallback((driver) => {
-    const id = 'd' + (drivers.length + 1 + Date.now());
-    setDrivers(prev => [...prev, { ...driver, id, totalRides: 0, rating: 5.0, joinDate: new Date().toISOString().split('T')[0] }]);
-  }, [drivers.length]);
+    const id = 'd' + Date.now();
+    const maxEmpNum = drivers.reduce((max, d) => Math.max(max, d.employeeNumber || 1000), 1000);
+    const employeeNumber = maxEmpNum + 1;
+    setDrivers(prev => [...prev, { ...driver, id, employeeNumber, totalRides: 0, rating: 5.0, joinDate: new Date().toISOString().split('T')[0] }]);
+  }, [drivers]);
 
   const updateDriver = useCallback((id, updates) => {
     setDrivers(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));

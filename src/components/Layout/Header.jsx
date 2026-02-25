@@ -5,9 +5,9 @@ import { useLocation } from 'react-router-dom';
 
 const pageTitleKeys = {
   '/':            { titleKey: 'nav.dashboard',    subtitleKey: 'nav.subtitleDashboard' },
+  '/operations':  { titleKey: 'nav.operations',   subtitleKey: 'nav.subtitleOperations' },
   '/rides':       { titleKey: 'nav.rides',        subtitleKey: 'nav.subtitleRides' },
   '/fleet':       { titleKey: 'nav.fleet',        subtitleKey: 'nav.subtitleFleet' },
-  '/vehicles':    { titleKey: 'nav.vehicles',     subtitleKey: 'nav.subtitleVehicles' },
   '/clients':     { titleKey: 'nav.clients',      subtitleKey: 'nav.subtitleClients' },
   '/maintenance': { titleKey: 'nav.maintenance',  subtitleKey: 'nav.subtitleMaintenance' },
   '/tracking':    { titleKey: 'nav.tracking',     subtitleKey: 'nav.subtitleTracking' },

@@ -43,7 +43,7 @@ export default function LoginPage() {
             <Shield size={32} className="text-gold-400" />
           </div>
           <h1 className="text-3xl font-bold text-white">{t('login.title')}</h1>
-          <p className="text-gold-500 font-semibold tracking-widest text-sm mt-1">ADDIS</p>
+          <p className="text-gold-500 font-semibold tracking-widest text-sm mt-1">FLEET MANAGEMENT</p>
           <p className="text-slate-400 text-sm mt-2">{t('login.subtitle')}</p>
         </div>
 
@@ -58,7 +58,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => { setEmail(e.target.value); setError(''); }}
                 className="input"
-                placeholder="your@safepass.et"
+                placeholder="your@theodorus.et"
                 autoComplete="email"
               />
             </div>

@@ -8,7 +8,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import RidesPage from './pages/RidesPage';
 import FleetPage from './pages/FleetPage';
-import VehiclesPage from './pages/VehiclesPage';
+import OperationsCenterPage from './pages/OperationsCenterPage';
 import ClientsPage from './pages/ClientsPage';
 import MaintenancePage from './pages/MaintenancePage';
 import ReportsPage from './pages/ReportsPage';
@@ -36,8 +36,8 @@ function AppLayout() {
             <Route path="/rides" element={
               <RidesPage openNewRide={openNewRide} setOpenNewRide={setOpenNewRide} />
             } />
+            <Route path="/operations" element={<OperationsCenterPage />} />
             <Route path="/fleet" element={<FleetPage />} />
-            <Route path="/vehicles" element={<VehiclesPage />} />
             <Route path="/clients" element={<ClientsPage />} />
             <Route path="/maintenance" element={<MaintenancePage />} />
             <Route path="/tracking" element={<GPSTrackingPage />} />

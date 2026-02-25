@@ -1,6 +1,6 @@
 const en = {
   // Auth
-  'login.title': 'Safe-Pass Driver',
+  'login.title': 'Theodorus Driver',
   'login.subtitle': 'Please sign in',
   'login.employeeId': 'Employee ID',
   'login.companyCode': 'Company Code',

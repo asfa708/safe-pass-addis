@@ -63,7 +63,7 @@ export default function LoginScreen() {
           </button>
         </form>
 
-        <p className="da-login-footer">Safe-Pass Addis © 2025</p>
+        <p className="da-login-footer">Theodorus © 2025</p>
       </div>
     </div>
   );

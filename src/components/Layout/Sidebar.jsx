@@ -9,9 +9,9 @@ import { useLanguage } from '../../context/LanguageContext';
 
 const navItems = [
   { to: '/',            icon: LayoutDashboard, labelKey: 'nav.dashboard' },
+  { to: '/operations',  icon: Truck,           labelKey: 'nav.operations' },
   { to: '/rides',       icon: CalendarCheck,   labelKey: 'nav.rides' },
   { to: '/fleet',       icon: Car,             labelKey: 'nav.fleet' },
-  { to: '/vehicles',    icon: Truck,           labelKey: 'nav.vehicles' },
   { to: '/clients',     icon: Users,           labelKey: 'nav.clients' },
   { to: '/maintenance', icon: Wrench,          labelKey: 'nav.maintenance' },
   { to: '/tracking',    icon: Navigation,      labelKey: 'nav.tracking' },
@@ -31,8 +31,8 @@ export default function Sidebar({ collapsed, onToggle }) {
         </div>
         {!collapsed && (
           <div>
-            <div className="font-bold text-white text-sm leading-tight">Safe-Pass</div>
-            <div className="text-gold-500 text-xs font-semibold tracking-wide">ADDIS</div>
+            <div className="font-bold text-white text-sm leading-tight">Theodorus</div>
+            <div className="text-gold-500 text-xs font-semibold tracking-wide">FLEET</div>
           </div>
         )}
         <button

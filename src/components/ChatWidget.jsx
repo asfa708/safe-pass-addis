@@ -25,7 +25,7 @@ const KB = [
   },
   {
     keywords: ['contact', 'reach', 'whatsapp', 'email', 'phone', 'call', 'number'],
-    answer: `You can reach Safe-Pass Addis at:\n📞 WhatsApp: +251 911 SAFEPASS\n✉️ Email: dispatch@safepass.et\n🕐 Operating hours: 24 hours a day, 7 days a week\n\nFor corporate accounts, your dedicated account manager is your primary contact.`,
+    answer: `You can reach Theodorus at:\n📞 WhatsApp: +251 911 SAFEPASS\n✉️ Email: dispatch@safepass.et\n🕐 Operating hours: 24 hours a day, 7 days a week\n\nFor corporate accounts, your dedicated account manager is your primary contact.`,
   },
   {
     keywords: ['driver', 'drivers', 'chauffeur', 'speak', 'language', 'english', 'french'],
@@ -37,7 +37,7 @@ const KB = [
   },
   {
     keywords: ['hour', 'hours', 'time', 'open', 'available', '24', 'night', 'weekend'],
-    answer: `Safe-Pass Addis operates 24 hours a day, 365 days a year — including weekends and Ethiopian public holidays. Emergency dispatch is always available.`,
+    answer: `Theodorus operates 24 hours a day, 365 days a year — including weekends and Ethiopian public holidays. Emergency dispatch is always available.`,
   },
   {
     keywords: ['corporate', 'company', 'business', 'contract', 'invoice', 'monthly', 'package'],
@@ -49,7 +49,7 @@ const KB = [
   },
   {
     keywords: ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'greet'],
-    answer: `Hello! Welcome to Safe-Pass Addis — Premium Mobility & Logistics. 👋\n\nHow can I help you today? You can ask about:\n• Pricing & rates\n• Airport transfers\n• School run service\n• How to book a ride\n• Our fleet & drivers\n• Corporate packages`,
+    answer: `Hello! Welcome to Theodorus — Premium Mobility & Logistics. 👋\n\nHow can I help you today? You can ask about:\n• Pricing & rates\n• Airport transfers\n• School run service\n• How to book a ride\n• Our fleet & drivers\n• Corporate packages`,
   },
 ];
 
@@ -101,7 +101,7 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [minimised, setMinimised] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, role: 'bot', text: "Hello! I'm the Safe-Pass Addis virtual assistant. How can I help you today?\n\nAsk me about pricing, airport transfers, school runs, booking, or anything else!" },
+    { id: 1, role: 'bot', text: "Hello! I'm the Theodorus virtual assistant. How can I help you today?\n\nAsk me about pricing, airport transfers, school runs, booking, or anything else!" },
   ]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
@@ -166,7 +166,7 @@ export default function ChatWidget() {
               <Bot size={16} className="text-gold-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white">Safe-Pass Support</p>
+              <p className="text-sm font-semibold text-white">Theodorus Support</p>
               <p className="text-xs text-green-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
                 Online · AI Assistant

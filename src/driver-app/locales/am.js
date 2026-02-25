@@ -1,6 +1,6 @@
 const am = {
   // Auth
-  'login.title': 'Safe-Pass አሽከርካሪ',
+  'login.title': 'Theodorus አሽከርካሪ',
   'login.subtitle': 'እባክዎ ይግቡ',
   'login.employeeId': 'የሰራተኛ መታወቂያ',
   'login.companyCode': 'የድርጅት ኮድ',

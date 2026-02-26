@@ -13,6 +13,8 @@ import ClientsPage from './pages/ClientsPage';
 import MaintenancePage from './pages/MaintenancePage';
 import ReportsPage from './pages/ReportsPage';
 import GPSTrackingPage from './pages/GPSTrackingPage';
+import AIManagerPage from './pages/AIManagerPage';
+import SettingsPage from './pages/SettingsPage';
 import DriverApp from './driver-app/DriverApp';
 
 function AppLayout() {
@@ -28,9 +30,9 @@ function AppLayout() {
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(c => !c)}
       />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen">
         <Header onNewRide={() => setOpenNewRide(true)} />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto min-h-0">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/rides" element={
@@ -42,6 +44,8 @@ function AppLayout() {
             <Route path="/maintenance" element={<MaintenancePage />} />
             <Route path="/tracking" element={<GPSTrackingPage />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/ai" element={<AIManagerPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

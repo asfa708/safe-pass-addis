@@ -12,6 +12,8 @@ const pageTitleKeys = {
   '/maintenance': { titleKey: 'nav.maintenance',  subtitleKey: 'nav.subtitleMaintenance' },
   '/tracking':    { titleKey: 'nav.tracking',     subtitleKey: 'nav.subtitleTracking' },
   '/reports':     { titleKey: 'nav.reports',      subtitleKey: 'nav.subtitleReports' },
+  '/ai':          { titleKey: 'nav.ai',           subtitleKey: 'nav.subtitleAi' },
+  '/settings':    { titleKey: 'nav.settings',     subtitleKey: 'nav.subtitleSettings' },
 };
 
 const LANGS = [

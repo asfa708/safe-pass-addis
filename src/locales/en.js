@@ -18,6 +18,10 @@ export default {
     subtitleVehicles: 'Vehicle fleet management',
     tracking: 'GPS Tracking',
     subtitleTracking: 'Live vehicle locations',
+    ai: 'AI Manager',
+    subtitleAi: 'AI-powered operations intelligence',
+    settings: 'Settings',
+    subtitleSettings: 'API keys and application preferences',
   },
   common: {
     search: 'Search',

@@ -18,6 +18,10 @@ export default {
     subtitleVehicles: 'ניהול צי רכבים',
     tracking: 'מעקב GPS',
     subtitleTracking: 'מיקומי רכב חיים',
+    ai: 'מנהל AI',
+    subtitleAi: 'מודיעין תפעולי מבוסס AI',
+    settings: 'הגדרות',
+    subtitleSettings: 'מפתחות API והגדרות יישום',
   },
   common: {
     search: 'חיפוש',

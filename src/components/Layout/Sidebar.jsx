@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Car, Users, CalendarCheck,
   Wrench, BarChart3, LogOut, Shield, ChevronRight,
-  Truck, Navigation, Smartphone,
+  Truck, Navigation, Smartphone, Brain, Settings,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -16,6 +16,8 @@ const navItems = [
   { to: '/maintenance', icon: Wrench,          labelKey: 'nav.maintenance' },
   { to: '/tracking',    icon: Navigation,      labelKey: 'nav.tracking' },
   { to: '/reports',     icon: BarChart3,       labelKey: 'nav.reports' },
+  { to: '/ai',          icon: Brain,           labelKey: 'nav.ai',       badge: 'AI' },
+  { to: '/settings',    icon: Settings,        labelKey: 'nav.settings' },
 ];
 
 export default function Sidebar({ collapsed, onToggle }) {
@@ -45,7 +47,7 @@ export default function Sidebar({ collapsed, onToggle }) {
 
       {/* Nav */}
       <nav className="flex-1 py-4 space-y-1 px-2">
-        {navItems.map(({ to, icon: Icon, labelKey }) => (
+        {navItems.map(({ to, icon: Icon, labelKey, badge }) => (
           <NavLink
             key={to}
             to={to}
@@ -72,6 +74,12 @@ export default function Sidebar({ collapsed, onToggle }) {
                 {to === '/rides' && stats.pendingRides > 0 && !collapsed && (
                   <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                     {stats.pendingRides}
+                  </span>
+                )}
+                {/* Static badge (e.g. AI) */}
+                {badge && !collapsed && to !== '/rides' && (
+                  <span className="ml-auto text-xs bg-gold-500/20 text-gold-400 border border-gold-500/30 px-1.5 py-0.5 rounded-full font-semibold">
+                    {badge}
                   </span>
                 )}
               </>

@@ -18,6 +18,10 @@ export default {
     subtitleVehicles: 'የተሽከርካሪ መርሃ አስተዳደር',
     tracking: 'GPS ክትትል',
     subtitleTracking: 'የቀጥታ ተሽከርካሪ ቦታ',
+    ai: 'AI አስተዳዳሪ',
+    subtitleAi: 'AI-ሚሰራ የሥራ ማሰብ',
+    settings: 'ቅንብሮች',
+    subtitleSettings: 'API ቁልፎች እና የፕሮግራም ቅንብሮች',
   },
   common: {
     search: 'ፈልግ',

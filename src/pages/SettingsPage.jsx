@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Settings, Key, Brain, CheckCircle, AlertCircle, Eye, EyeOff, Save, Trash2, Loader2 } from 'lucide-react';
 import { callClaude } from '../services/claudeService';
 
@@ -16,8 +16,10 @@ export default function SettingsPage() {
   const [model, setModel]       = useState('claude-sonnet-4-6');
   const [showKey, setShowKey]   = useState(false);
   const [saved, setSaved]       = useState(false);
+  const [hasSavedKey, setHasSavedKey] = useState(false);
   const [testStatus, setTestStatus] = useState(null); // null | 'loading' | 'ok' | 'error'
   const [testMsg, setTestMsg]   = useState('');
+  const savedTimerRef = useRef(null);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -25,18 +27,29 @@ export default function SettingsPage() {
     const m = localStorage.getItem(LS_KEY_MODEL) || 'claude-sonnet-4-6';
     setApiKey(k);
     setModel(m);
+    setHasSavedKey(!!k);
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => { if (savedTimerRef.current) clearTimeout(savedTimerRef.current); };
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem(LS_KEY_APIKEY, apiKey.trim());
+    const trimmed = apiKey.trim();
+    localStorage.setItem(LS_KEY_APIKEY, trimmed);
     localStorage.setItem(LS_KEY_MODEL, model);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setHasSavedKey(!!trimmed);
     setTestStatus(null);
+    setSaved(true);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => setSaved(false), 3000);
   };
 
   const handleClear = () => {
     setApiKey('');
+    setHasSavedKey(false);
+    setSaved(false);
     localStorage.removeItem(LS_KEY_APIKEY);
     setTestStatus(null);
   };
@@ -106,6 +119,7 @@ export default function SettingsPage() {
                 spellCheck={false}
               />
               <button
+                type="button"
                 onClick={() => setShowKey(v => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
               >
@@ -113,6 +127,7 @@ export default function SettingsPage() {
               </button>
             </div>
             <button
+              type="button"
               onClick={handleClear}
               className="btn-ghost px-3 text-red-400 hover:text-red-300 border-red-500/30 hover:border-red-500/50"
               title="Clear saved key"
@@ -122,7 +137,7 @@ export default function SettingsPage() {
           </div>
           <p className="text-xs text-slate-500">
             Your key is stored only in your browser's localStorage and never sent anywhere except directly to Anthropic's API.
-            {localStorage.getItem(LS_KEY_APIKEY) && (
+            {hasSavedKey && (
               <span className="ml-1 text-green-400">Currently saved: {maskedKey}</span>
             )}
           </p>
@@ -161,6 +176,14 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Save success banner */}
+        {saved && (
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-sm text-green-300">
+            <CheckCircle size={16} className="flex-shrink-0" />
+            <span>Settings saved successfully.</span>
+          </div>
+        )}
+
         {/* Test connection result */}
         {testStatus === 'ok' && (
           <div className="flex items-start gap-2 p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-sm text-green-300">
@@ -178,6 +201,7 @@ export default function SettingsPage() {
         {/* Action buttons */}
         <div className="flex gap-3 pt-1">
           <button
+            type="button"
             onClick={handleSave}
             className="btn-primary flex items-center gap-2"
           >
@@ -185,6 +209,7 @@ export default function SettingsPage() {
             {saved ? 'Saved!' : 'Save Settings'}
           </button>
           <button
+            type="button"
             onClick={handleTest}
             disabled={testStatus === 'loading'}
             className="btn-ghost flex items-center gap-2"

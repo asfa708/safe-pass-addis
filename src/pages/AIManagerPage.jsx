@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
-  Brain, Send, Loader2, AlertTriangle, AlertCircle, Info,
+  Brain, Send, AlertTriangle, AlertCircle, Info,
   Zap, BarChart2, Truck, DollarSign, FileText, Settings,
   ChevronRight, RefreshCw, Bot, User, X, Shield
 } from 'lucide-react';
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
   buildFleetContext,
-  callClaudeStream,
+  callClaude,
   computeRiskAlerts,
   generateDailyBriefing,
   generateDispatchSuggestions,
@@ -16,54 +16,57 @@ import {
   generateMonthlyReport,
 } from '../services/claudeService';
 
-const LS_KEY_APIKEY    = 'theodorus-api-key';
 const LS_KEY_MODEL     = 'theodorus-ai-model';
 const LS_BRIEFING_DATE = 'theodorus-briefing-date';
 const LS_BRIEFING_TEXT = 'theodorus-briefing-text';
 
 // ── Simple inline markdown renderer ───────────────────────────────────────────
 function SimpleMarkdown({ text }) {
-  // Guard: never crash if text is missing
   if (!text) return null;
-
   const lines = String(text).split('\n');
   const elements = [];
 
-  const renderInline = (str) => {
-    const parts = String(str).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
-    return parts.map((p, idx) => {
+  const renderInline = (str) =>
+    String(str).split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((p, idx) => {
       if (p.startsWith('**') && p.endsWith('**'))
         return <strong key={idx} className="text-white font-semibold">{p.slice(2, -2)}</strong>;
       if (p.startsWith('`') && p.endsWith('`'))
         return <code key={idx} className="px-1 py-0.5 rounded bg-navy-700 text-gold-400 text-xs font-mono">{p.slice(1, -1)}</code>;
       return p;
     });
-  };
 
   lines.forEach((line, i) => {
-    if (line.startsWith('### ')) {
-      elements.push(<h3 key={i} className="text-sm font-bold text-gold-400 mt-3 mb-1">{renderInline(line.slice(4))}</h3>);
-    } else if (line.startsWith('## ')) {
-      elements.push(<h2 key={i} className="text-base font-bold text-gold-300 mt-4 mb-1.5 border-b border-navy-600 pb-1">{renderInline(line.slice(3))}</h2>);
-    } else if (line.startsWith('# ')) {
-      elements.push(<h1 key={i} className="text-lg font-bold text-gold-300 mt-4 mb-2">{renderInline(line.slice(2))}</h1>);
-    } else if (/^\d+\.\s/.test(line)) {
-      elements.push(<p key={i} className="text-sm text-slate-200 ml-3 my-0.5 leading-relaxed">{renderInline(line)}</p>);
-    } else if (line.startsWith('- ') || line.startsWith('• ')) {
+    if      (line.startsWith('### ')) elements.push(<h3 key={i} className="text-sm font-bold text-gold-400 mt-3 mb-1">{renderInline(line.slice(4))}</h3>);
+    else if (line.startsWith('## '))  elements.push(<h2 key={i} className="text-base font-bold text-gold-300 mt-4 mb-1.5 border-b border-navy-600 pb-1">{renderInline(line.slice(3))}</h2>);
+    else if (line.startsWith('# '))   elements.push(<h1 key={i} className="text-lg font-bold text-gold-300 mt-4 mb-2">{renderInline(line.slice(2))}</h1>);
+    else if (/^\d+\.\s/.test(line))   elements.push(<p key={i} className="text-sm text-slate-200 ml-3 my-0.5 leading-relaxed">{renderInline(line)}</p>);
+    else if (line.startsWith('- ') || line.startsWith('• '))
       elements.push(
         <p key={i} className="text-sm text-slate-200 ml-3 my-0.5 leading-relaxed flex gap-2">
           <span className="text-gold-500 flex-shrink-0 mt-1">•</span>
           <span>{renderInline(line.slice(2))}</span>
         </p>
       );
-    } else if (line.trim() === '') {
-      elements.push(<div key={i} className="h-1.5" />);
-    } else {
-      elements.push(<p key={i} className="text-sm text-slate-200 leading-relaxed my-0.5">{renderInline(line)}</p>);
-    }
+    else if (line.trim() === '') elements.push(<div key={i} className="h-1.5" />);
+    else elements.push(<p key={i} className="text-sm text-slate-200 leading-relaxed my-0.5">{renderInline(line)}</p>);
   });
 
   return <div className="space-y-0">{elements}</div>;
+}
+
+// ── Typing dots (shown while waiting for response) ────────────────────────────
+function TypingDots() {
+  return (
+    <div className="flex gap-1 items-center py-1 px-1">
+      {[0, 1, 2].map(i => (
+        <span
+          key={i}
+          className="w-2 h-2 rounded-full bg-gold-400 animate-bounce"
+          style={{ animationDelay: `${i * 0.15}s` }}
+        />
+      ))}
+    </div>
+  );
 }
 
 // ── Risk alert ─────────────────────────────────────────────────────────────────
@@ -72,11 +75,7 @@ const SEVERITY_STYLES = {
   warning:  'bg-yellow-500/10 border-yellow-500/40 text-yellow-300',
   info:     'bg-blue-500/10 border-blue-500/40 text-blue-300',
 };
-const SEVERITY_ICONS = {
-  critical: AlertTriangle,
-  warning:  AlertCircle,
-  info:     Info,
-};
+const SEVERITY_ICONS = { critical: AlertTriangle, warning: AlertCircle, info: Info };
 
 function RiskAlert({ alert }) {
   const Icon = SEVERITY_ICONS[alert.severity] || Info;
@@ -93,10 +92,10 @@ function RiskAlert({ alert }) {
 
 // ── Quick actions ──────────────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
-  { id: 'dispatch',  icon: Truck,       label: 'Smart Dispatch',   fn: generateDispatchSuggestions },
-  { id: 'pricing',   icon: DollarSign,  label: 'Pricing Analysis', fn: generatePricingSuggestions  },
-  { id: 'report',    icon: FileText,    label: 'Monthly Report',   fn: generateMonthlyReport       },
-  { id: 'briefing',  icon: Zap,         label: 'Daily Briefing',   fn: generateDailyBriefing       },
+  { id: 'dispatch', icon: Truck,      label: 'Smart Dispatch',   fn: generateDispatchSuggestions },
+  { id: 'pricing',  icon: DollarSign, label: 'Pricing Analysis', fn: generatePricingSuggestions  },
+  { id: 'report',   icon: FileText,   label: 'Monthly Report',   fn: generateMonthlyReport       },
+  { id: 'briefing', icon: Zap,        label: 'Daily Briefing',   fn: generateDailyBriefing       },
 ];
 
 const SUGGESTIONS = [
@@ -123,12 +122,7 @@ function Message({ msg }) {
           : 'bg-gold-500 text-black font-medium rounded-tr-sm'
       }`}>
         {isBot
-          ? (msg.streaming
-              ? <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {msg.text || ''}
-                  <span className="inline-block w-1.5 h-3.5 bg-gold-400 animate-pulse ml-0.5 align-middle" />
-                </p>
-              : <SimpleMarkdown text={msg.text || ''} />)
+          ? (msg.loading ? <TypingDots /> : <SimpleMarkdown text={msg.text || ''} />)
           : <p className="whitespace-pre-wrap">{msg.text}</p>
         }
       </div>
@@ -141,54 +135,48 @@ export default function AIManagerPage() {
   const navigate = useNavigate();
   const { rides, drivers, vehicles, clients, maintenance } = useApp();
 
-  // Read API key/model once; user must navigate away and back to pick up changes from Settings
-  const apiKey = useRef(localStorage.getItem(LS_KEY_APIKEY) || '').current;
-  const model  = useRef(localStorage.getItem(LS_KEY_MODEL)  || 'claude-sonnet-4-6').current;
+  const model = useRef(localStorage.getItem(LS_KEY_MODEL) || 'claude-sonnet-4-6').current;
 
   const [messages, setMessages] = useState([{
     id: 1,
     role: 'assistant',
-    text: "Hello! I'm the Theodorus AI Operations Manager. I have full visibility into your fleet, drivers, rides, and clients.\n\nAsk me anything — dispatch recommendations, pricing strategy, driver performance, risk analysis, or use the quick action buttons to generate reports.",
+    text: "Hello! I'm the Theodorus AI Operations Manager powered by Claude. I have full visibility into your fleet, drivers, rides, and clients.\n\nAsk me anything — dispatch recommendations, pricing strategy, performance analysis, risk alerts — or use the quick action buttons.",
   }]);
   const [input, setInput]               = useState('');
-  const [streaming, setStreaming]       = useState(false);
+  const [loading, setLoading]           = useState(false);
   const [quickLoading, setQuickLoading] = useState(null);
   const [alerts, setAlerts]             = useState([]);
   const [briefingLoading, setBriefingLoading] = useState(false);
 
-  const abortRef   = useRef(null);
-  const bottomRef  = useRef(null);
-  // Keep a ref in sync with messages so sendMessage never captures stale state
+  const abortRef    = useRef(null);
+  const bottomRef   = useRef(null);
   const messagesRef = useRef(messages);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
-  // Memoize the system prompt — only rebuild when fleet data actually changes
   const systemPrompt = useMemo(
     () => buildFleetContext({ rides, drivers, vehicles, clients, maintenance }),
     [rides, drivers, vehicles, clients, maintenance]
   );
 
-  // Recompute risk alerts when fleet data changes
+  // Risk alerts
   useEffect(() => {
     setAlerts(computeRiskAlerts({ rides, drivers, vehicles, maintenance }));
   }, [rides, drivers, vehicles, maintenance]);
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll
   useEffect(() => {
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
   }, [messages]);
 
-  // Cancel any active stream on unmount
-  useEffect(() => {
-    return () => { abortRef.current?.abort(); };
-  }, []);
+  // Cancel stream on unmount
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
 
-  // Auto-generate daily briefing once per calendar day
+  // Auto daily briefing once per day
   useEffect(() => {
-    if (!apiKey) return;
     const today    = new Date().toDateString();
     const lastDate = localStorage.getItem(LS_BRIEFING_DATE);
     const lastText = localStorage.getItem(LS_BRIEFING_TEXT);
+
     if (lastDate === today && lastText) {
       setMessages(prev => [...prev, {
         id: Date.now(),
@@ -197,11 +185,11 @@ export default function AIManagerPage() {
       }]);
       return;
     }
+
     setBriefingLoading(true);
-    generateDailyBriefing(apiKey, model, systemPrompt)
+    generateDailyBriefing(model, systemPrompt)
       .then(text => {
-        // callClaude returns the text string directly
-        const briefText = (typeof text === 'string' ? text : null) || 'Could not generate briefing.';
+        const briefText = text || 'Could not generate briefing.';
         localStorage.setItem(LS_BRIEFING_DATE, today);
         localStorage.setItem(LS_BRIEFING_TEXT, briefText);
         setMessages(prev => [...prev, {
@@ -210,32 +198,28 @@ export default function AIManagerPage() {
           text: '📋 **Daily Briefing**\n\n' + briefText,
         }]);
       })
-      .catch(() => {})
+      .catch(err => {
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          role: 'assistant',
+          text: `⚠️ Could not generate daily briefing: ${err.message}`,
+        }]);
+      })
       .finally(() => setBriefingLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Stream a user chat message
+  // Send a chat message
   const sendMessage = useCallback(async (text) => {
-    if (!text.trim() || streaming) return;
-    if (!apiKey) {
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        role: 'assistant',
-        text: '⚠️ No API key configured. Please go to **Settings** to add your Anthropic API key.',
-      }]);
-      return;
-    }
+    if (!text.trim() || loading) return;
 
     const userMsg     = { id: Date.now(), role: 'user', text: text.trim() };
     const assistantId = Date.now() + 1;
-    const assistantMsg = { id: assistantId, role: 'assistant', text: '', streaming: true };
 
-    setMessages(prev => [...prev, userMsg, assistantMsg]);
+    setMessages(prev => [...prev, userMsg, { id: assistantId, role: 'assistant', text: '', loading: true }]);
     setInput('');
-    setStreaming(true);
+    setLoading(true);
 
-    // Build history using the ref so we don't need `messages` as a dependency
     const history = [...messagesRef.current, userMsg]
       .filter(m => m.role === 'user' || (m.role === 'assistant' && m.text))
       .map(m => ({ role: m.role, content: m.text }));
@@ -243,74 +227,60 @@ export default function AIManagerPage() {
     abortRef.current = new AbortController();
 
     try {
-      let accumulated = '';
-      for await (const chunk of callClaudeStream(apiKey, model, systemPrompt, history, abortRef.current.signal)) {
-        accumulated += chunk;
-        setMessages(prev => prev.map(m =>
-          m.id === assistantId ? { ...m, text: accumulated } : m
-        ));
-      }
-      // Mark streaming done
+      const responseText = await callClaude(model, systemPrompt, history, abortRef.current.signal);
       setMessages(prev => prev.map(m =>
-        m.id === assistantId ? { ...m, streaming: false } : m
+        m.id === assistantId ? { ...m, text: responseText, loading: false } : m
       ));
     } catch (err) {
-      // Always clear the streaming flag on the message, regardless of error type
-      setMessages(prev => prev.map(m => {
-        if (m.id !== assistantId) return m;
-        if (err.name === 'AbortError') return { ...m, streaming: false };
-        return { ...m, text: `❌ Error: ${err.message || 'Unknown error'}`, streaming: false };
-      }));
+      const errText = err.name === 'AbortError'
+        ? '_(request cancelled)_'
+        : `❌ ${err.message || 'Request failed'}`;
+      setMessages(prev => prev.map(m =>
+        m.id === assistantId ? { ...m, text: errText, loading: false } : m
+      ));
     } finally {
-      setStreaming(false);
+      setLoading(false);
       abortRef.current = null;
     }
-  }, [streaming, apiKey, model, systemPrompt]); // no longer depends on `messages`
+  }, [loading, model, systemPrompt]);
 
-  const stopStream = () => {
+  const cancelRequest = () => {
     abortRef.current?.abort();
-    // streaming state will be set to false in the finally block of sendMessage
+    // loading/message state cleared in sendMessage's finally/catch
   };
 
-  // Quick action (non-streaming, full response at once)
   const runQuickAction = async (action) => {
-    if (streaming || quickLoading) return;
-    if (!apiKey) {
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        role: 'assistant',
-        text: '⚠️ No API key configured. Please go to **Settings** to add your Anthropic API key.',
-      }]);
-      return;
-    }
+    if (loading || quickLoading) return;
+    const assistantId = Date.now() + 1;
+    setMessages(prev => [...prev,
+      { id: Date.now(), role: 'user', text: `Generate: ${action.label}` },
+      { id: assistantId, role: 'assistant', text: '', loading: true },
+    ]);
     setQuickLoading(action.id);
-    setMessages(prev => [...prev, { id: Date.now(), role: 'user', text: `Generate: ${action.label}` }]);
     try {
-      const result = await action.fn(apiKey, model, systemPrompt);
-      // callClaude returns the text string directly
-      const text = (typeof result === 'string' ? result : null) || 'No response generated.';
-      setMessages(prev => [...prev, { id: Date.now(), role: 'assistant', text }]);
+      const text = await action.fn(model, systemPrompt);
+      setMessages(prev => prev.map(m =>
+        m.id === assistantId ? { ...m, text: text || 'No response generated.', loading: false } : m
+      ));
     } catch (err) {
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        role: 'assistant',
-        text: `❌ Error generating ${action.label}: ${err.message || 'Unknown error'}`,
-      }]);
+      setMessages(prev => prev.map(m =>
+        m.id === assistantId
+          ? { ...m, text: `❌ ${err.message || 'Request failed'}`, loading: false }
+          : m
+      ));
     } finally {
       setQuickLoading(null);
     }
   };
 
   const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(input);
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); }
   };
 
   const criticalCount = alerts.filter(a => a.severity === 'critical').length;
   const warningCount  = alerts.filter(a => a.severity === 'warning').length;
   const hasUserMsg    = messages.some(m => m.role === 'user');
+  const isBusy        = loading || !!quickLoading;
 
   return (
     <div className="h-full flex gap-4 p-4 overflow-hidden">
@@ -325,14 +295,10 @@ export default function AIManagerPage() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white">AI Operations Manager</p>
-            <p className="text-xs text-slate-400 truncate">{model} · Full fleet context loaded</p>
+            <p className="text-xs text-slate-400 truncate">
+              {briefingLoading ? 'Generating daily briefing…' : `${model} · Fleet context loaded`}
+            </p>
           </div>
-          {briefingLoading && (
-            <div className="flex items-center gap-1.5 text-xs text-gold-400">
-              <Loader2 size={13} className="animate-spin" />
-              <span>Generating briefing…</span>
-            </div>
-          )}
           <button
             type="button"
             onClick={() => navigate('/settings')}
@@ -343,21 +309,6 @@ export default function AIManagerPage() {
           </button>
         </div>
 
-        {/* No API key banner */}
-        {!apiKey && (
-          <div className="flex items-center gap-3 px-4 py-2.5 bg-yellow-500/10 border-b border-yellow-500/20 text-xs text-yellow-300">
-            <AlertTriangle size={13} className="flex-shrink-0" />
-            <span>No API key configured.</span>
-            <button
-              type="button"
-              onClick={() => navigate('/settings')}
-              className="ml-auto flex items-center gap-1 font-semibold hover:text-yellow-200 transition-colors"
-            >
-              Go to Settings <ChevronRight size={12} />
-            </button>
-          </div>
-        )}
-
         {/* Quick actions */}
         <div className="flex gap-2 px-4 py-2.5 border-b border-navy-600 flex-shrink-0 bg-navy-700/20 overflow-x-auto">
           {QUICK_ACTIONS.map(action => {
@@ -367,11 +318,11 @@ export default function AIManagerPage() {
                 key={action.id}
                 type="button"
                 onClick={() => runQuickAction(action)}
-                disabled={streaming || !!quickLoading}
+                disabled={isBusy}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy-700 border border-navy-600 text-xs text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {quickLoading === action.id
-                  ? <Loader2 size={12} className="animate-spin" />
+                  ? <span className="w-3 h-3 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
                   : <Icon size={12} />
                 }
                 {action.label}
@@ -394,7 +345,7 @@ export default function AIManagerPage() {
                 key={s}
                 type="button"
                 onClick={() => sendMessage(s)}
-                disabled={streaming}
+                disabled={isBusy}
                 className="text-xs px-2.5 py-1.5 rounded-full bg-navy-700 border border-navy-600 text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors disabled:opacity-40"
               >
                 {s}
@@ -411,15 +362,16 @@ export default function AIManagerPage() {
             onKeyDown={handleKey}
             placeholder="Ask about dispatch, pricing, performance, risks…"
             rows={1}
-            className="flex-1 bg-navy-700 border border-navy-600 rounded-xl px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold-500 transition-colors resize-none"
+            disabled={isBusy}
+            className="flex-1 bg-navy-700 border border-navy-600 rounded-xl px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold-500 transition-colors resize-none disabled:opacity-60"
             style={{ maxHeight: '120px', overflowY: 'auto' }}
           />
-          {streaming ? (
+          {loading ? (
             <button
               type="button"
-              onClick={stopStream}
+              onClick={cancelRequest}
               className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 transition-colors flex-shrink-0"
-              title="Stop"
+              title="Cancel"
             >
               <X size={15} />
             </button>
@@ -447,10 +399,10 @@ export default function AIManagerPage() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { label: 'Active Rides',    value: rides.filter(r => r.status === 'In Progress').length, color: 'text-green-400' },
-              { label: 'On Duty Drivers', value: drivers.filter(d => d.status === 'On Duty').length,   color: 'text-blue-400' },
-              { label: 'Active Vehicles', value: vehicles.filter(v => v.status === 'Active').length,   color: 'text-gold-400' },
-              { label: 'Pending Rides',   value: rides.filter(r => r.status === 'Scheduled').length,   color: 'text-yellow-400' },
+              { label: 'Active Rides',    value: rides.filter(r => ['In Progress','onway','arrived'].includes(r.status)).length, color: 'text-green-400' },
+              { label: 'On Duty Drivers', value: drivers.filter(d => d.status === 'On Duty').length,   color: 'text-blue-400'   },
+              { label: 'Active Vehicles', value: vehicles.filter(v => v.status === 'Active').length,   color: 'text-gold-400'   },
+              { label: 'Pending Rides',   value: rides.filter(r => ['Scheduled','new'].includes(r.status)).length, color: 'text-yellow-400' },
             ].map(stat => (
               <div key={stat.label} className="bg-navy-700 rounded-lg p-2.5 border border-navy-600">
                 <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
@@ -468,12 +420,8 @@ export default function AIManagerPage() {
               <h3 className="text-sm font-semibold text-white">Risk Alerts</h3>
             </div>
             <div className="flex gap-1">
-              {criticalCount > 0 && (
-                <span className="text-xs px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 font-semibold">{criticalCount}</span>
-              )}
-              {warningCount > 0 && (
-                <span className="text-xs px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 font-semibold">{warningCount}</span>
-              )}
+              {criticalCount > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 font-semibold">{criticalCount}</span>}
+              {warningCount  > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 font-semibold">{warningCount}</span>}
             </div>
           </div>
           {alerts.length === 0 ? (
@@ -483,12 +431,8 @@ export default function AIManagerPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {alerts.slice(0, 8).map(alert => (
-                <RiskAlert key={alert.id} alert={alert} />
-              ))}
-              {alerts.length > 8 && (
-                <p className="text-xs text-slate-500 text-center pt-1">+{alerts.length - 8} more alerts</p>
-              )}
+              {alerts.slice(0, 8).map(alert => <RiskAlert key={alert.id} alert={alert} />)}
+              {alerts.length > 8 && <p className="text-xs text-slate-500 text-center pt-1">+{alerts.length - 8} more alerts</p>}
             </div>
           )}
         </div>

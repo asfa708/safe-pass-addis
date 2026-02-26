@@ -2,7 +2,7 @@
 // /.netlify/functions/chat so the API key never touches the browser and
 // there are no CORS issues.
 
-const PROXY_URL = '/.netlify/functions/chat';
+const PROXY_URL = '/api/chat';
 
 /* ─── Context builder ────────────────────────────────────────────────────── */
 

@@ -376,22 +376,20 @@ function AIManagerInner() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Suggestion chips */}
-        {!hasUserMsg && (
-          <div className="px-4 pb-2 flex flex-wrap gap-1.5 flex-shrink-0">
-            {SUGGESTIONS.map(s => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => sendMessage(s)}
-                disabled={isBusy}
-                className="text-xs px-2.5 py-1.5 rounded-full bg-navy-700 border border-navy-600 text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors disabled:opacity-40"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Suggestion chips — always rendered, hidden after first user message */}
+        <div className={`px-4 pb-2 flex flex-wrap gap-1.5 flex-shrink-0 ${hasUserMsg ? 'hidden' : ''}`}>
+          {SUGGESTIONS.map(s => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => sendMessage(s)}
+              disabled={isBusy}
+              className="text-xs px-2.5 py-1.5 rounded-full bg-navy-700 border border-navy-600 text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors disabled:opacity-40"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
 
         {/* Input bar */}
         <div className="p-3 border-t border-navy-600 flex gap-2 flex-shrink-0">
@@ -405,25 +403,20 @@ function AIManagerInner() {
             className="flex-1 bg-navy-700 border border-navy-600 rounded-xl px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold-500 transition-colors resize-none disabled:opacity-60"
             style={{ maxHeight: '120px', overflowY: 'auto' }}
           />
-          {loading ? (
-            <button
-              type="button"
-              onClick={cancelRequest}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 transition-colors flex-shrink-0"
-              title="Cancel"
-            >
-              <X size={15} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => sendMessage(input)}
-              disabled={!input.trim()}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gold-500 hover:bg-gold-600 text-black disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-            >
-              <Send size={15} />
-            </button>
-          )}
+          {/* Single stable button — switches between send and cancel */}
+          <button
+            type="button"
+            onClick={loading ? cancelRequest : () => sendMessage(input)}
+            disabled={!loading && !input.trim()}
+            title={loading ? 'Cancel' : 'Send'}
+            className={`w-9 h-9 flex items-center justify-center rounded-xl transition-colors flex-shrink-0 ${
+              loading
+                ? 'bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30'
+                : 'bg-gold-500 hover:bg-gold-600 text-black disabled:opacity-40 disabled:cursor-not-allowed'
+            }`}
+          >
+            {loading ? <X size={15} /> : <Send size={15} />}
+          </button>
         </div>
       </div>
 

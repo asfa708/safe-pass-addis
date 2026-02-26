@@ -107,7 +107,7 @@ export async function callClaude(apiKey, model, systemPrompt, messages) {
     throw new Error(err.error?.message || `API error ${response.status}`);
   }
   const data = await response.json();
-  return data.content[0].text;
+  return data?.content?.[0]?.text ?? '';
 }
 
 export async function* callClaudeStream(apiKey, model, systemPrompt, messages, signal) {

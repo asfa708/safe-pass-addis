@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   Brain, Send, Loader2, AlertTriangle, AlertCircle, Info,
   Zap, BarChart2, Truck, DollarSign, FileText, Settings,
@@ -16,20 +16,21 @@ import {
   generateMonthlyReport,
 } from '../services/claudeService';
 
-const LS_KEY_APIKEY  = 'theodorus-api-key';
-const LS_KEY_MODEL   = 'theodorus-ai-model';
+const LS_KEY_APIKEY    = 'theodorus-api-key';
+const LS_KEY_MODEL     = 'theodorus-ai-model';
 const LS_BRIEFING_DATE = 'theodorus-briefing-date';
 const LS_BRIEFING_TEXT = 'theodorus-briefing-text';
 
 // ── Simple inline markdown renderer ───────────────────────────────────────────
 function SimpleMarkdown({ text }) {
-  const lines = text.split('\n');
+  // Guard: never crash if text is missing
+  if (!text) return null;
+
+  const lines = String(text).split('\n');
   const elements = [];
-  let i = 0;
 
   const renderInline = (str) => {
-    // Bold + code inline
-    const parts = str.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+    const parts = String(str).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
     return parts.map((p, idx) => {
       if (p.startsWith('**') && p.endsWith('**'))
         return <strong key={idx} className="text-white font-semibold">{p.slice(2, -2)}</strong>;
@@ -39,9 +40,7 @@ function SimpleMarkdown({ text }) {
     });
   };
 
-  while (i < lines.length) {
-    const line = lines[i];
-
+  lines.forEach((line, i) => {
     if (line.startsWith('### ')) {
       elements.push(<h3 key={i} className="text-sm font-bold text-gold-400 mt-3 mb-1">{renderInline(line.slice(4))}</h3>);
     } else if (line.startsWith('## ')) {
@@ -62,27 +61,28 @@ function SimpleMarkdown({ text }) {
     } else {
       elements.push(<p key={i} className="text-sm text-slate-200 leading-relaxed my-0.5">{renderInline(line)}</p>);
     }
-    i++;
-  }
+  });
+
   return <div className="space-y-0">{elements}</div>;
 }
 
-// ── Risk alert badge ───────────────────────────────────────────────────────────
+// ── Risk alert ─────────────────────────────────────────────────────────────────
 const SEVERITY_STYLES = {
   critical: 'bg-red-500/10 border-red-500/40 text-red-300',
   warning:  'bg-yellow-500/10 border-yellow-500/40 text-yellow-300',
   info:     'bg-blue-500/10 border-blue-500/40 text-blue-300',
 };
 const SEVERITY_ICONS = {
-  critical: <AlertTriangle size={13} className="flex-shrink-0 mt-0.5 text-red-400" />,
-  warning:  <AlertCircle size={13} className="flex-shrink-0 mt-0.5 text-yellow-400" />,
-  info:     <Info size={13} className="flex-shrink-0 mt-0.5 text-blue-400" />,
+  critical: AlertTriangle,
+  warning:  AlertCircle,
+  info:     Info,
 };
 
 function RiskAlert({ alert }) {
+  const Icon = SEVERITY_ICONS[alert.severity] || Info;
   return (
-    <div className={`flex gap-2 p-2.5 rounded-lg border text-xs ${SEVERITY_STYLES[alert.severity]}`}>
-      {SEVERITY_ICONS[alert.severity]}
+    <div className={`flex gap-2 p-2.5 rounded-lg border text-xs ${SEVERITY_STYLES[alert.severity] || ''}`}>
+      <Icon size={13} className="flex-shrink-0 mt-0.5" />
       <div className="min-w-0">
         <p className="font-semibold leading-snug">{alert.title}</p>
         <p className="opacity-80 leading-snug mt-0.5 truncate">{alert.detail}</p>
@@ -91,12 +91,12 @@ function RiskAlert({ alert }) {
   );
 }
 
-// ── Quick action buttons ───────────────────────────────────────────────────────
+// ── Quick actions ──────────────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
-  { id: 'dispatch',  icon: <Truck size={14} />,     label: 'Smart Dispatch',   fn: generateDispatchSuggestions  },
-  { id: 'pricing',   icon: <DollarSign size={14} />, label: 'Pricing Analysis', fn: generatePricingSuggestions   },
-  { id: 'report',    icon: <FileText size={14} />,   label: 'Monthly Report',   fn: generateMonthlyReport        },
-  { id: 'briefing',  icon: <Zap size={14} />,        label: 'Daily Briefing',   fn: generateDailyBriefing        },
+  { id: 'dispatch',  icon: Truck,       label: 'Smart Dispatch',   fn: generateDispatchSuggestions },
+  { id: 'pricing',   icon: DollarSign,  label: 'Pricing Analysis', fn: generatePricingSuggestions  },
+  { id: 'report',    icon: FileText,    label: 'Monthly Report',   fn: generateMonthlyReport       },
+  { id: 'briefing',  icon: Zap,         label: 'Daily Briefing',   fn: generateDailyBriefing       },
 ];
 
 const SUGGESTIONS = [
@@ -107,7 +107,7 @@ const SUGGESTIONS = [
   'What is the best pricing strategy for airport transfers?',
 ];
 
-// ── Message component ──────────────────────────────────────────────────────────
+// ── Message bubble ─────────────────────────────────────────────────────────────
 function Message({ msg }) {
   const isBot = msg.role === 'assistant';
   return (
@@ -124,8 +124,11 @@ function Message({ msg }) {
       }`}>
         {isBot
           ? (msg.streaming
-              ? <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{msg.text}<span className="inline-block w-1.5 h-3.5 bg-gold-400 animate-pulse ml-0.5 align-middle" /></p>
-              : <SimpleMarkdown text={msg.text} />)
+              ? <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+                  {msg.text || ''}
+                  <span className="inline-block w-1.5 h-3.5 bg-gold-400 animate-pulse ml-0.5 align-middle" />
+                </p>
+              : <SimpleMarkdown text={msg.text || ''} />)
           : <p className="whitespace-pre-wrap">{msg.text}</p>
         }
       </div>
@@ -133,73 +136,84 @@ function Message({ msg }) {
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+// ── Main page ──────────────────────────────────────────────────────────────────
 export default function AIManagerPage() {
   const navigate = useNavigate();
   const { rides, drivers, vehicles, clients, maintenance } = useApp();
 
-  const [apiKey]  = useState(() => localStorage.getItem(LS_KEY_APIKEY) || '');
-  const [model]   = useState(() => localStorage.getItem(LS_KEY_MODEL) || 'claude-sonnet-4-6');
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      role: 'assistant',
-      text: "Hello! I'm the Theodorus AI Operations Manager. I have full visibility into your fleet, drivers, rides, and clients.\n\nAsk me anything — dispatch recommendations, pricing strategy, driver performance, risk analysis, or use the quick action buttons to generate reports.",
-    },
-  ]);
-  const [input, setInput]           = useState('');
-  const [streaming, setStreaming]   = useState(false);
-  const [quickLoading, setQuickLoading] = useState(null);
-  const [alerts, setAlerts]         = useState([]);
-  const [briefingLoading, setBriefingLoading] = useState(false);
-  const abortRef  = useRef(null);
-  const bottomRef = useRef(null);
-  const inputRef  = useRef(null);
+  // Read API key/model once; user must navigate away and back to pick up changes from Settings
+  const apiKey = useRef(localStorage.getItem(LS_KEY_APIKEY) || '').current;
+  const model  = useRef(localStorage.getItem(LS_KEY_MODEL)  || 'claude-sonnet-4-6').current;
 
-  // Compute risk alerts whenever data changes
+  const [messages, setMessages] = useState([{
+    id: 1,
+    role: 'assistant',
+    text: "Hello! I'm the Theodorus AI Operations Manager. I have full visibility into your fleet, drivers, rides, and clients.\n\nAsk me anything — dispatch recommendations, pricing strategy, driver performance, risk analysis, or use the quick action buttons to generate reports.",
+  }]);
+  const [input, setInput]               = useState('');
+  const [streaming, setStreaming]       = useState(false);
+  const [quickLoading, setQuickLoading] = useState(null);
+  const [alerts, setAlerts]             = useState([]);
+  const [briefingLoading, setBriefingLoading] = useState(false);
+
+  const abortRef   = useRef(null);
+  const bottomRef  = useRef(null);
+  // Keep a ref in sync with messages so sendMessage never captures stale state
+  const messagesRef = useRef(messages);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+
+  // Memoize the system prompt — only rebuild when fleet data actually changes
+  const systemPrompt = useMemo(
+    () => buildFleetContext({ rides, drivers, vehicles, clients, maintenance }),
+    [rides, drivers, vehicles, clients, maintenance]
+  );
+
+  // Recompute risk alerts when fleet data changes
   useEffect(() => {
-    const computed = computeRiskAlerts({ rides, drivers, vehicles, maintenance });
-    setAlerts(computed);
+    setAlerts(computeRiskAlerts({ rides, drivers, vehicles, maintenance }));
   }, [rides, drivers, vehicles, maintenance]);
 
-  // Auto-scroll
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
   }, [messages]);
 
-  // Auto-generate daily briefing once per day
+  // Cancel any active stream on unmount
+  useEffect(() => {
+    return () => { abortRef.current?.abort(); };
+  }, []);
+
+  // Auto-generate daily briefing once per calendar day
   useEffect(() => {
     if (!apiKey) return;
-    const today = new Date().toDateString();
+    const today    = new Date().toDateString();
     const lastDate = localStorage.getItem(LS_BRIEFING_DATE);
     const lastText = localStorage.getItem(LS_BRIEFING_TEXT);
     if (lastDate === today && lastText) {
-      // Show cached briefing
-      setMessages(prev => [
-        ...prev,
-        { id: Date.now(), role: 'assistant', text: '📋 **Daily Briefing** (cached)\n\n' + lastText },
-      ]);
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        role: 'assistant',
+        text: '📋 **Daily Briefing** (cached)\n\n' + lastText,
+      }]);
       return;
     }
-    // Generate fresh briefing
-    const systemPrompt = buildFleetContext({ rides, drivers, vehicles, clients, maintenance });
     setBriefingLoading(true);
     generateDailyBriefing(apiKey, model, systemPrompt)
-      .then(result => {
-        const text = result?.content?.[0]?.text || 'Could not generate briefing.';
+      .then(text => {
+        // callClaude returns the text string directly
+        const briefText = (typeof text === 'string' ? text : null) || 'Could not generate briefing.';
         localStorage.setItem(LS_BRIEFING_DATE, today);
-        localStorage.setItem(LS_BRIEFING_TEXT, text);
-        setMessages(prev => [
-          ...prev,
-          { id: Date.now(), role: 'assistant', text: '📋 **Daily Briefing**\n\n' + text },
-        ]);
+        localStorage.setItem(LS_BRIEFING_TEXT, briefText);
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          role: 'assistant',
+          text: '📋 **Daily Briefing**\n\n' + briefText,
+        }]);
       })
       .catch(() => {})
       .finally(() => setBriefingLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // only on mount
-
-  const systemPrompt = buildFleetContext({ rides, drivers, vehicles, clients, maintenance });
+  }, []);
 
   // Stream a user chat message
   const sendMessage = useCallback(async (text) => {
@@ -213,7 +227,7 @@ export default function AIManagerPage() {
       return;
     }
 
-    const userMsg = { id: Date.now(), role: 'user', text: text.trim() };
+    const userMsg     = { id: Date.now(), role: 'user', text: text.trim() };
     const assistantId = Date.now() + 1;
     const assistantMsg = { id: assistantId, role: 'assistant', text: '', streaming: true };
 
@@ -221,8 +235,8 @@ export default function AIManagerPage() {
     setInput('');
     setStreaming(true);
 
-    // Build history for API (exclude the empty streaming message)
-    const history = [...messages, userMsg]
+    // Build history using the ref so we don't need `messages` as a dependency
+    const history = [...messagesRef.current, userMsg]
       .filter(m => m.role === 'user' || (m.role === 'assistant' && m.text))
       .map(m => ({ role: m.role, content: m.text }));
 
@@ -236,30 +250,29 @@ export default function AIManagerPage() {
           m.id === assistantId ? { ...m, text: accumulated } : m
         ));
       }
-      // Done streaming
+      // Mark streaming done
       setMessages(prev => prev.map(m =>
         m.id === assistantId ? { ...m, streaming: false } : m
       ));
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        setMessages(prev => prev.map(m =>
-          m.id === assistantId
-            ? { ...m, text: `❌ Error: ${err.message}`, streaming: false }
-            : m
-        ));
-      }
+      // Always clear the streaming flag on the message, regardless of error type
+      setMessages(prev => prev.map(m => {
+        if (m.id !== assistantId) return m;
+        if (err.name === 'AbortError') return { ...m, streaming: false };
+        return { ...m, text: `❌ Error: ${err.message || 'Unknown error'}`, streaming: false };
+      }));
     } finally {
       setStreaming(false);
       abortRef.current = null;
     }
-  }, [streaming, apiKey, model, systemPrompt, messages]);
+  }, [streaming, apiKey, model, systemPrompt]); // no longer depends on `messages`
 
   const stopStream = () => {
     abortRef.current?.abort();
-    setStreaming(false);
+    // streaming state will be set to false in the finally block of sendMessage
   };
 
-  // Quick action handler
+  // Quick action (non-streaming, full response at once)
   const runQuickAction = async (action) => {
     if (streaming || quickLoading) return;
     if (!apiKey) {
@@ -271,18 +284,17 @@ export default function AIManagerPage() {
       return;
     }
     setQuickLoading(action.id);
-    setMessages(prev => [...prev,
-      { id: Date.now(), role: 'user', text: `Generate: ${action.label}` },
-    ]);
+    setMessages(prev => [...prev, { id: Date.now(), role: 'user', text: `Generate: ${action.label}` }]);
     try {
       const result = await action.fn(apiKey, model, systemPrompt);
-      const text = result?.content?.[0]?.text || 'No response generated.';
+      // callClaude returns the text string directly
+      const text = (typeof result === 'string' ? result : null) || 'No response generated.';
       setMessages(prev => [...prev, { id: Date.now(), role: 'assistant', text }]);
     } catch (err) {
       setMessages(prev => [...prev, {
         id: Date.now(),
         role: 'assistant',
-        text: `❌ Error generating ${action.label}: ${err.message}`,
+        text: `❌ Error generating ${action.label}: ${err.message || 'Unknown error'}`,
       }]);
     } finally {
       setQuickLoading(null);
@@ -298,14 +310,15 @@ export default function AIManagerPage() {
 
   const criticalCount = alerts.filter(a => a.severity === 'critical').length;
   const warningCount  = alerts.filter(a => a.severity === 'warning').length;
+  const hasUserMsg    = messages.some(m => m.role === 'user');
 
   return (
     <div className="h-full flex gap-4 p-4 overflow-hidden">
 
-      {/* ── Left: Chat column ─────────────────────────────────────────── */}
+      {/* ── Chat column ───────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col bg-navy-800 border border-navy-600 rounded-2xl overflow-hidden min-w-0">
 
-        {/* Chat header */}
+        {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-navy-600 flex-shrink-0 bg-navy-700/40">
           <div className="w-9 h-9 rounded-xl bg-gold-500/15 border border-gold-500/30 flex items-center justify-center">
             <Brain size={18} className="text-gold-400" />
@@ -321,6 +334,7 @@ export default function AIManagerPage() {
             </div>
           )}
           <button
+            type="button"
             onClick={() => navigate('/settings')}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-navy-600 transition-colors"
             title="Settings"
@@ -335,6 +349,7 @@ export default function AIManagerPage() {
             <AlertTriangle size={13} className="flex-shrink-0" />
             <span>No API key configured.</span>
             <button
+              type="button"
               onClick={() => navigate('/settings')}
               className="ml-auto flex items-center gap-1 font-semibold hover:text-yellow-200 transition-colors"
             >
@@ -345,20 +360,24 @@ export default function AIManagerPage() {
 
         {/* Quick actions */}
         <div className="flex gap-2 px-4 py-2.5 border-b border-navy-600 flex-shrink-0 bg-navy-700/20 overflow-x-auto">
-          {QUICK_ACTIONS.map(action => (
-            <button
-              key={action.id}
-              onClick={() => runQuickAction(action)}
-              disabled={streaming || !!quickLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy-700 border border-navy-600 text-xs text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {quickLoading === action.id
-                ? <Loader2 size={12} className="animate-spin" />
-                : action.icon
-              }
-              {action.label}
-            </button>
-          ))}
+          {QUICK_ACTIONS.map(action => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.id}
+                type="button"
+                onClick={() => runQuickAction(action)}
+                disabled={streaming || !!quickLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy-700 border border-navy-600 text-xs text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {quickLoading === action.id
+                  ? <Loader2 size={12} className="animate-spin" />
+                  : <Icon size={12} />
+                }
+                {action.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Messages */}
@@ -367,15 +386,16 @@ export default function AIManagerPage() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Suggestion chips (show when only greeting is visible) */}
-        {messages.filter(m => m.role === 'user').length === 0 && (
+        {/* Suggestion chips */}
+        {!hasUserMsg && (
           <div className="px-4 pb-2 flex flex-wrap gap-1.5 flex-shrink-0">
             {SUGGESTIONS.map(s => (
               <button
                 key={s}
+                type="button"
                 onClick={() => sendMessage(s)}
                 disabled={streaming}
-                className="text-xs px-2.5 py-1.5 rounded-full bg-navy-700 border border-navy-600 text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors"
+                className="text-xs px-2.5 py-1.5 rounded-full bg-navy-700 border border-navy-600 text-slate-300 hover:border-gold-500/50 hover:text-gold-400 transition-colors disabled:opacity-40"
               >
                 {s}
               </button>
@@ -386,7 +406,6 @@ export default function AIManagerPage() {
         {/* Input bar */}
         <div className="p-3 border-t border-navy-600 flex gap-2 flex-shrink-0">
           <textarea
-            ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKey}
@@ -397,6 +416,7 @@ export default function AIManagerPage() {
           />
           {streaming ? (
             <button
+              type="button"
               onClick={stopStream}
               className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 transition-colors flex-shrink-0"
               title="Stop"
@@ -405,6 +425,7 @@ export default function AIManagerPage() {
             </button>
           ) : (
             <button
+              type="button"
               onClick={() => sendMessage(input)}
               disabled={!input.trim()}
               className="w-9 h-9 flex items-center justify-center rounded-xl bg-gold-500 hover:bg-gold-600 text-black disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
@@ -415,7 +436,7 @@ export default function AIManagerPage() {
         </div>
       </div>
 
-      {/* ── Right: Sidebar ────────────────────────────────────────────── */}
+      {/* ── Sidebar ───────────────────────────────────────────────────── */}
       <div className="w-72 flex flex-col gap-4 overflow-y-auto flex-shrink-0">
 
         {/* Fleet snapshot */}
@@ -426,10 +447,10 @@ export default function AIManagerPage() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { label: 'Active Rides',   value: rides.filter(r => r.status === 'In Progress').length, color: 'text-green-400' },
-              { label: 'On Duty Drivers',value: drivers.filter(d => d.status === 'On Duty').length, color: 'text-blue-400' },
-              { label: 'Active Vehicles',value: vehicles.filter(v => v.status === 'Active').length, color: 'text-gold-400' },
-              { label: 'Pending Rides',  value: rides.filter(r => r.status === 'Scheduled').length, color: 'text-yellow-400' },
+              { label: 'Active Rides',    value: rides.filter(r => r.status === 'In Progress').length, color: 'text-green-400' },
+              { label: 'On Duty Drivers', value: drivers.filter(d => d.status === 'On Duty').length,   color: 'text-blue-400' },
+              { label: 'Active Vehicles', value: vehicles.filter(v => v.status === 'Active').length,   color: 'text-gold-400' },
+              { label: 'Pending Rides',   value: rides.filter(r => r.status === 'Scheduled').length,   color: 'text-yellow-400' },
             ].map(stat => (
               <div key={stat.label} className="bg-navy-700 rounded-lg p-2.5 border border-navy-600">
                 <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
@@ -455,7 +476,6 @@ export default function AIManagerPage() {
               )}
             </div>
           </div>
-
           {alerts.length === 0 ? (
             <div className="text-center py-6 text-slate-500 text-xs">
               <Shield size={28} className="mx-auto mb-2 opacity-30" />
@@ -467,20 +487,16 @@ export default function AIManagerPage() {
                 <RiskAlert key={alert.id} alert={alert} />
               ))}
               {alerts.length > 8 && (
-                <p className="text-xs text-slate-500 text-center pt-1">
-                  +{alerts.length - 8} more alerts
-                </p>
+                <p className="text-xs text-slate-500 text-center pt-1">+{alerts.length - 8} more alerts</p>
               )}
             </div>
           )}
         </div>
 
-        {/* Refresh context button */}
+        {/* Refresh */}
         <button
-          onClick={() => {
-            const newAlerts = computeRiskAlerts({ rides, drivers, vehicles, maintenance });
-            setAlerts(newAlerts);
-          }}
+          type="button"
+          onClick={() => setAlerts(computeRiskAlerts({ rides, drivers, vehicles, maintenance }))}
           className="btn-ghost w-full flex items-center justify-center gap-2 text-xs"
         >
           <RefreshCw size={13} />

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, Component } from 'react';
 import {
   Brain, Send, AlertTriangle, AlertCircle, Info,
   Zap, BarChart2, Truck, DollarSign, FileText, Settings,
@@ -19,6 +19,45 @@ import {
 const LS_KEY_MODEL     = 'theodorus-ai-model';
 const LS_BRIEFING_DATE = 'theodorus-briefing-date';
 const LS_BRIEFING_TEXT = 'theodorus-briefing-text';
+
+// ── Error boundary — catches render crashes and shows a message instead ────────
+class ErrorBoundary extends Component {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('AI Manager render error:', error, info);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="h-full flex items-center justify-center p-8">
+          <div className="max-w-md text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h2 className="text-lg font-semibold text-white">Something went wrong</h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              {this.state.error.message || 'An unexpected error occurred in the AI Manager.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => this.setState({ error: null })}
+              className="btn-primary mx-auto"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // ── Simple inline markdown renderer ───────────────────────────────────────────
 function SimpleMarkdown({ text }) {
@@ -131,7 +170,7 @@ function Message({ msg }) {
 }
 
 // ── Main page ──────────────────────────────────────────────────────────────────
-export default function AIManagerPage() {
+function AIManagerInner() {
   const navigate = useNavigate();
   const { rides, drivers, vehicles, clients, maintenance } = useApp();
 
@@ -448,5 +487,13 @@ export default function AIManagerPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function AIManagerPage() {
+  return (
+    <ErrorBoundary>
+      <AIManagerInner />
+    </ErrorBoundary>
   );
 }

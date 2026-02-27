@@ -53,7 +53,7 @@ const INITIAL_POSITIONS = {
 };
 
 const DRIVER_COLORS = {
-  d1: '#FFD700',
+  d1: '#00d4ff',
   d2: '#60a5fa',
   d3: '#34d399',
   d4: '#f472b6',
@@ -112,9 +112,9 @@ export default function GPSTrackingPage() {
           <Navigation size={18} className="text-gold-400" />
           <h2 className="text-lg font-bold text-white">Live GPS Tracking</h2>
         </div>
-        <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full ${
-          live ? 'bg-green-900/40 text-green-300 border border-green-700/50' : 'bg-navy-700/40 text-slate-400 border border-navy-600'
-        }`}>
+        <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-sm font-mono ${
+          live ? 'bg-green-900/30 text-green-400 border border-green-700/40' : 'bg-navy-700/40 text-slate-500 border border-navy-600'
+        }`} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.1em' }}>
           {live ? <Wifi size={12} /> : <WifiOff size={12} />}
           {live ? 'LIVE' : 'PAUSED'}
         </div>
@@ -153,18 +153,18 @@ export default function GPSTrackingPage() {
           <svg
             viewBox={`0 0 ${SVG_W} ${SVG_H}`}
             className="w-full h-full"
-            style={{ background: '#0a0a0a' }}
+            style={{ background: '#000810' }}
           >
             {/* Grid */}
             <defs>
               <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#151515" strokeWidth="0.5" />
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,212,255,0.04)" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width={SVG_W} height={SVG_H} fill="url(#grid)" />
 
-            {/* Green zone — north (Entoto) */}
-            <ellipse cx="400" cy="60" rx="300" ry="70" fill="#0d1f0d" opacity="0.6" />
+            {/* Northern hills zone */}
+            <ellipse cx="400" cy="60" rx="300" ry="70" fill="rgba(0,212,255,0.03)" opacity="0.8" />
 
             {/* City block texture */}
             {[
@@ -172,14 +172,14 @@ export default function GPSTrackingPage() {
               [370, 300, 100, 100], [480, 310, 80, 70], [310, 400, 80, 60],
               [400, 400, 100, 60], [500, 380, 70, 50],
             ].map(([x, y, w, h], i) => (
-              <rect key={i} x={x} y={y} width={w} height={h} fill="#111111" rx="4" opacity="0.6" />
+              <rect key={i} x={x} y={y} width={w} height={h} fill="rgba(0,212,255,0.025)" rx="2" opacity="0.8" />
             ))}
 
             {/* Roads */}
             {ROADS.map((r, i) => (
               <g key={i}>
-                <path d={r.d} fill="none" stroke="#2a2a2a" strokeWidth={r.w + 2} strokeLinecap="round" strokeLinejoin="round" />
-                <path d={r.d} fill="none" stroke="#383838" strokeWidth={r.w} strokeLinecap="round" strokeLinejoin="round" />
+                <path d={r.d} fill="none" stroke="rgba(0,212,255,0.06)" strokeWidth={r.w + 3} strokeLinecap="round" strokeLinejoin="round" />
+                <path d={r.d} fill="none" stroke="rgba(0,212,255,0.18)" strokeWidth={r.w} strokeLinecap="round" strokeLinejoin="round" />
               </g>
             ))}
 
@@ -188,7 +188,7 @@ export default function GPSTrackingPage() {
               const m = r.d.match(/M\s*([\d.]+)\s+([\d.]+)/);
               if (!m) return null;
               return (
-                <text key={i} x={parseFloat(m[1]) + 5} y={parseFloat(m[2]) - 5} fontSize="9" fill="#444444" fontFamily="Inter, sans-serif">
+                <text key={i} x={parseFloat(m[1]) + 5} y={parseFloat(m[2]) - 5} fontSize="9" fill="rgba(0,212,255,0.3)" fontFamily="'JetBrains Mono', monospace">
                   {r.label}
                 </text>
               );
@@ -199,8 +199,8 @@ export default function GPSTrackingPage() {
               const { x, y } = toXY(lm.lat, lm.lng);
               return (
                 <g key={i}>
-                  <circle cx={x} cy={y} r="5" fill="#1a1a1a" stroke="#333333" strokeWidth="1" />
-                  <text x={x + 8} y={y + 4} fontSize="10" fill="#555555" fontFamily="Inter, sans-serif">
+                  <circle cx={x} cy={y} r="4" fill="rgba(0,212,255,0.05)" stroke="rgba(0,212,255,0.25)" strokeWidth="1" />
+                  <text x={x + 8} y={y + 4} fontSize="9" fill="rgba(0,212,255,0.4)" fontFamily="'JetBrains Mono', monospace">
                     {lm.name}
                   </text>
                 </g>
@@ -222,13 +222,13 @@ export default function GPSTrackingPage() {
                     <circle cx={x} cy={y} r="22" fill="none" stroke={color} strokeWidth="1.5" opacity="0.4" />
                   )}
                   <circle cx={x} cy={y} r="14" fill={color} opacity="0.15" />
-                  <circle cx={x} cy={y} r="9" fill={color} stroke="#0a0a0a" strokeWidth="2" />
-                  <text x={x} y={y + 4} textAnchor="middle" fontSize="11" fill="#0a0a0a" fontWeight="bold">🚗</text>
+                  <circle cx={x} cy={y} r="9" fill={color} stroke="#000810" strokeWidth="2" />
+                  <text x={x} y={y + 4} textAnchor="middle" fontSize="11" fill="#000810" fontWeight="bold">🚗</text>
                   <text
                     x={x + 13} y={y - 12}
                     fontSize="10" fontWeight="bold"
-                    fill={color} stroke="#0a0a0a" strokeWidth="3" paintOrder="stroke"
-                    fontFamily="Inter, sans-serif"
+                    fill={color} stroke="#000810" strokeWidth="3" paintOrder="stroke"
+                    fontFamily="'JetBrains Mono', monospace"
                   >
                     {driver.name.split(' ')[0]}
                   </text>
@@ -236,8 +236,8 @@ export default function GPSTrackingPage() {
                     <text
                       x={x + 13} y={y}
                       fontSize="8" fontWeight="bold"
-                      fill={color} stroke="#0a0a0a" strokeWidth="2.5" paintOrder="stroke"
-                      fontFamily="monospace"
+                      fill={color} stroke="#000810" strokeWidth="2.5" paintOrder="stroke"
+                      fontFamily="'JetBrains Mono', monospace"
                       opacity="0.85"
                     >
                       {vehicle.licensePlate}
@@ -245,19 +245,19 @@ export default function GPSTrackingPage() {
                   )}
                   {isSelected && (
                     <g>
-                      <rect x={x - 65} y={y - 66} width="140" height="56" rx="6" fill="#111111" stroke={color} strokeWidth="1" />
-                      <text x={x} y={y - 49} textAnchor="middle" fontSize="10" fontWeight="bold" fill={color} fontFamily="Inter, sans-serif">
+                      <rect x={x - 65} y={y - 66} width="140" height="56" rx="2" fill="#000c1a" stroke={color} strokeWidth="1" strokeOpacity="0.7" />
+                      <text x={x} y={y - 49} textAnchor="middle" fontSize="10" fontWeight="bold" fill={color} fontFamily="'JetBrains Mono', monospace">
                         {driver.name}
                       </text>
-                      <text x={x} y={y - 36} textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Inter, sans-serif">
+                      <text x={x} y={y - 36} textAnchor="middle" fontSize="9" fill="rgba(148,163,184,0.7)" fontFamily="'JetBrains Mono', monospace">
                         {vehicle ? `${vehicle.make} ${vehicle.model}` : 'Vehicle unknown'}
                       </text>
                       {vehicle?.licensePlate && (
-                        <text x={x} y={y - 23} textAnchor="middle" fontSize="9" fontWeight="bold" fill={color} fontFamily="monospace" opacity="0.9">
+                        <text x={x} y={y - 23} textAnchor="middle" fontSize="9" fontWeight="bold" fill={color} fontFamily="'JetBrains Mono', monospace" opacity="0.9">
                           {vehicle.licensePlate}
                         </text>
                       )}
-                      <text x={x} y={y - 11} textAnchor="middle" fontSize="8" fill="#555555" fontFamily="Inter, sans-serif">
+                      <text x={x} y={y - 11} textAnchor="middle" fontSize="8" fill="rgba(0,212,255,0.3)" fontFamily="'JetBrains Mono', monospace">
                         {pos.lat.toFixed(4)}°N, {pos.lng.toFixed(4)}°E
                       </text>
                     </g>
@@ -268,33 +268,45 @@ export default function GPSTrackingPage() {
 
             {/* Compass */}
             <g transform="translate(760, 40)">
-              <circle cx="0" cy="0" r="16" fill="#111111" stroke="#222222" strokeWidth="1" />
-              <text x="0" y="-4" textAnchor="middle" fontSize="11" fill="#FFD700" fontWeight="bold" fontFamily="Inter">N</text>
-              <text x="0" y="10" textAnchor="middle" fontSize="8" fill="#444444" fontFamily="Inter">S</text>
-              <text x="-10" y="4" textAnchor="middle" fontSize="8" fill="#444444" fontFamily="Inter">W</text>
-              <text x="10" y="4" textAnchor="middle" fontSize="8" fill="#444444" fontFamily="Inter">E</text>
+              <circle cx="0" cy="0" r="16" fill="rgba(0,12,24,0.9)" stroke="rgba(0,212,255,0.25)" strokeWidth="1" />
+              <text x="0" y="-4" textAnchor="middle" fontSize="11" fill="#00d4ff" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">N</text>
+              <text x="0" y="10" textAnchor="middle" fontSize="8" fill="rgba(0,212,255,0.3)" fontFamily="'JetBrains Mono', monospace">S</text>
+              <text x="-10" y="4" textAnchor="middle" fontSize="8" fill="rgba(0,212,255,0.3)" fontFamily="'JetBrains Mono', monospace">W</text>
+              <text x="10" y="4" textAnchor="middle" fontSize="8" fill="rgba(0,212,255,0.3)" fontFamily="'JetBrains Mono', monospace">E</text>
             </g>
 
             {/* Scale bar */}
             <g transform="translate(20, 555)">
-              <rect x="0" y="0" width="80" height="3" fill="#FFD700" opacity="0.6" />
-              <text x="0" y="-4" fontSize="9" fill="#555555" fontFamily="Inter">0</text>
-              <text x="72" y="-4" fontSize="9" fill="#555555" fontFamily="Inter">~4 km</text>
+              <rect x="0" y="0" width="80" height="2" fill="#00d4ff" opacity="0.4" />
+              <text x="0" y="-4" fontSize="9" fill="rgba(0,212,255,0.35)" fontFamily="'JetBrains Mono', monospace">0</text>
+              <text x="60" y="-4" fontSize="9" fill="rgba(0,212,255,0.35)" fontFamily="'JetBrains Mono', monospace">~4 km</text>
             </g>
           </svg>
 
           {/* Live indicator overlay */}
           {live && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-navy-900/90 border border-green-700/50 rounded-lg px-2.5 py-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs font-medium text-green-400">LIVE</span>
+            <div
+              className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5"
+              style={{
+                background: 'rgba(0,8,16,0.92)',
+                border: '1px solid rgba(74,222,128,0.3)',
+                borderRadius: '2px',
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: '#4ade80', animation: 'glow-pulse 2s ease-in-out infinite', boxShadow: '0 0 6px #4ade80' }}
+              />
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.62rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.12em' }}>
+                LIVE
+              </span>
             </div>
           )}
         </div>
 
         {/* Side panel */}
         <div className="w-64 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Vehicles</p>
+          <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', fontWeight: 700, color: 'rgba(0,212,255,0.4)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Active Vehicles</p>
           {activeDrivers.map(driver => {
             const pos = positions[driver.id];
             const color = DRIVER_COLORS[driver.id] || '#94a3b8';
@@ -305,11 +317,12 @@ export default function GPSTrackingPage() {
               <button
                 key={driver.id}
                 onClick={() => setSelectedDriver(id => id === driver.id ? null : driver.id)}
-                className={`w-full text-left p-3 rounded-xl border transition-all ${
-                  isSelected
-                    ? 'bg-navy-700 border-gold-500/40'
-                    : 'bg-navy-800 border-navy-600/50 hover:border-navy-600'
-                }`}
+                className="w-full text-left p-3 transition-all"
+                style={{
+                  background: isSelected ? 'rgba(0,212,255,0.06)' : 'rgba(1,16,32,0.8)',
+                  border: isSelected ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(0,212,255,0.08)',
+                  borderRadius: '2px',
+                }}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
@@ -340,24 +353,24 @@ export default function GPSTrackingPage() {
           })}
 
           {drivers.filter(d => d.status !== 'Active').length > 0 && (
-            <div className="p-3 bg-navy-700/40 rounded-xl border border-navy-600/30">
-              <p className="text-xs text-slate-500">
+            <div className="p-3" style={{ background: 'rgba(1,16,32,0.6)', border: '1px solid rgba(0,212,255,0.06)', borderRadius: '2px' }}>
+              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: 'rgba(100,116,139,0.7)' }}>
                 {drivers.filter(d => d.status !== 'Active').length} driver(s) off-duty — not tracked
               </p>
             </div>
           )}
 
           {/* Legend */}
-          <div className="mt-auto p-3 bg-navy-700/40 rounded-xl border border-navy-600/30 space-y-1.5">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Map Legend</p>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <div className="w-5 h-1 bg-[#383838] rounded" /> Major road
+          <div className="mt-auto p-3 space-y-1.5" style={{ background: 'rgba(1,16,32,0.6)', border: '1px solid rgba(0,212,255,0.06)', borderRadius: '2px' }}>
+            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', fontWeight: 700, color: 'rgba(0,212,255,0.35)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Map Legend</p>
+            <div className="flex items-center gap-2" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#475569' }}>
+              <div className="w-5 h-px" style={{ background: 'rgba(0,212,255,0.4)' }} /> Major road
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <div className="w-3 h-3 rounded-full bg-gold-500" /> Active vehicle
+            <div className="flex items-center gap-2" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#475569' }}>
+              <div className="w-3 h-3 rounded-full" style={{ background: '#00d4ff' }} /> Active vehicle
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <div className="w-3 h-3 rounded-full bg-[#333]" /> Landmark
+            <div className="flex items-center gap-2" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#475569' }}>
+              <div className="w-3 h-3 rounded-full" style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)' }} /> Landmark
             </div>
           </div>
         </div>

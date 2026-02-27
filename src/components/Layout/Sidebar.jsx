@@ -25,123 +25,282 @@ export default function Sidebar({ collapsed, onToggle }) {
   const { t } = useLanguage();
 
   return (
-    <aside className={`flex flex-col bg-navy-800 border-r border-navy-600/60 transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'} min-h-screen`}>
+    <aside
+      className={`flex flex-col border-r transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'} min-h-screen relative overflow-hidden flex-shrink-0`}
+      style={{ background: '#010e1c', borderColor: 'rgba(0,212,255,0.1)' }}
+    >
+      {/* Right edge glow line */}
+      <div
+        className="absolute top-0 right-0 w-px h-full pointer-events-none"
+        style={{ background: 'linear-gradient(180deg, rgba(0,212,255,0.5) 0%, rgba(0,212,255,0.08) 30%, transparent 100%)' }}
+      />
+
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-navy-600/60">
-        <div className="w-9 h-9 rounded-lg bg-gold-500 flex items-center justify-center flex-shrink-0">
-          <Shield size={20} className="text-black" />
+      <div
+        className="flex items-center gap-3 px-4 py-4 relative flex-shrink-0"
+        style={{ borderBottom: '1px solid rgba(0,212,255,0.08)' }}
+      >
+        {/* Logo mark */}
+        <div className="relative flex-shrink-0">
+          <div
+            className="w-9 h-9 flex items-center justify-center"
+            style={{
+              background: 'rgba(0,212,255,0.07)',
+              border: '1px solid rgba(0,212,255,0.35)',
+              borderRadius: '3px',
+            }}
+          >
+            <Shield size={17} style={{ color: '#00d4ff' }} />
+          </div>
+          {/* Corner brackets */}
+          <div className="absolute -top-0.5 -left-0.5 w-2 h-2" style={{ borderTop: '1px solid rgba(0,212,255,0.7)', borderLeft: '1px solid rgba(0,212,255,0.7)' }} />
+          <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2" style={{ borderBottom: '1px solid rgba(0,212,255,0.7)', borderRight: '1px solid rgba(0,212,255,0.7)' }} />
         </div>
+
         {!collapsed && (
-          <div>
-            <div className="font-bold text-white text-sm leading-tight">Theodorus</div>
-            <div className="text-gold-500 text-xs font-semibold tracking-wide">FLEET</div>
+          <div className="flex-1 min-w-0">
+            <div
+              className="text-white font-bold tracking-widest leading-tight"
+              style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.8rem' }}
+            >
+              THEODORUS
+            </div>
+            <div
+              className="tracking-widest leading-tight mt-0.5"
+              style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', color: 'rgba(0,212,255,0.5)', letterSpacing: '0.22em' }}
+            >
+              FLEET OPS
+            </div>
           </div>
         )}
+
         <button
           onClick={onToggle}
-          className="ml-auto text-slate-400 hover:text-white transition-colors"
+          className="ml-auto transition-colors flex-shrink-0"
+          style={{ color: 'rgba(0,212,255,0.3)' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#00d4ff'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,212,255,0.3)'}
         >
-          <ChevronRight size={16} className={`transition-transform ${collapsed ? '' : 'rotate-180'}`} />
+          <ChevronRight size={14} className={`transition-transform ${collapsed ? '' : 'rotate-180'}`} />
         </button>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 py-4 space-y-1 px-2">
+      {/* Section label */}
+      {!collapsed && (
+        <div className="px-4 pt-4 pb-1.5">
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', color: 'rgba(0,212,255,0.25)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+            Navigation
+          </span>
+        </div>
+      )}
+
+      {/* Nav items */}
+      <nav className="flex-1 py-2 px-2 space-y-0.5 overflow-y-auto">
         {navItems.map(({ to, icon: Icon, labelKey, badge }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${
-                isActive
-                  ? 'bg-gold-500/15 text-gold-400 border border-gold-500/30'
-                  : 'text-slate-400 hover:bg-navy-700/60 hover:text-slate-200'
-              }`
-            }
+            className="block"
           >
             {({ isActive }) => (
-              <>
-                <Icon size={18} className={isActive ? 'text-gold-400' : ''} />
-                {!collapsed && <span className="text-sm font-medium">{t(labelKey)}</span>}
-                {/* Tooltip when collapsed */}
+              <div
+                className="flex items-center gap-2.5 px-2.5 py-2 relative group transition-all duration-150 rounded-sm"
+                style={{
+                  borderLeft: isActive ? '2px solid #00d4ff' : '2px solid transparent',
+                  background: isActive ? 'rgba(0,212,255,0.07)' : 'transparent',
+                  color: isActive ? '#00d4ff' : '#475569',
+                }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(0,212,255,0.04)'; e.currentTarget.style.color = '#94a3b8'; } }}
+                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; } }}
+              >
+                <Icon size={15} style={{ flexShrink: 0 }} />
+
+                {!collapsed && (
+                  <span
+                    className="flex-1 min-w-0 truncate font-medium"
+                    style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', letterSpacing: '0.04em' }}
+                  >
+                    {t(labelKey)}
+                  </span>
+                )}
+
+                {/* Collapsed tooltip */}
                 {collapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-navy-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border border-navy-600">
+                  <div
+                    className="absolute left-full ml-3 px-2.5 py-1.5 text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '0.7rem',
+                      background: '#010e1c',
+                      border: '1px solid rgba(0,212,255,0.2)',
+                      borderRadius: '2px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
+                    }}
+                  >
                     {t(labelKey)}
                   </div>
                 )}
-                {/* Badge for pending rides */}
+
+                {/* Pending rides badge */}
                 {to === '/rides' && stats.pendingRides > 0 && !collapsed && (
-                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  <span
+                    className="text-red-400 font-bold"
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '0.6rem',
+                      background: 'rgba(239,68,68,0.15)',
+                      border: '1px solid rgba(239,68,68,0.3)',
+                      borderRadius: '2px',
+                      padding: '0.1rem 0.35rem',
+                    }}
+                  >
                     {stats.pendingRides}
                   </span>
                 )}
-                {/* Static badge (e.g. AI) */}
+
+                {/* Static badge (AI) */}
                 {badge && !collapsed && to !== '/rides' && (
-                  <span className="ml-auto text-xs bg-gold-500/20 text-gold-400 border border-gold-500/30 px-1.5 py-0.5 rounded-full font-semibold">
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '0.58rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.1em',
+                      background: 'rgba(0,212,255,0.1)',
+                      border: '1px solid rgba(0,212,255,0.3)',
+                      borderRadius: '2px',
+                      padding: '0.1rem 0.35rem',
+                      color: '#00d4ff',
+                    }}
+                  >
                     {badge}
                   </span>
                 )}
-              </>
+
+                {/* Active indicator dot */}
+                {isActive && (
+                  <div
+                    className="w-1 h-1 rounded-full flex-shrink-0"
+                    style={{ background: '#00d4ff', boxShadow: '0 0 6px #00d4ff' }}
+                  />
+                )}
+              </div>
             )}
           </NavLink>
         ))}
       </nav>
 
       {/* Driver App link */}
-      <div className="px-2 pb-2">
-        <NavLink
-          to="/driver"
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${
-              isActive
-                ? 'bg-gold-500/15 text-gold-400 border border-gold-500/30'
-                : 'text-slate-400 hover:bg-navy-700/60 hover:text-slate-200'
-            }`
-          }
-        >
+      <div className="px-2 pb-1" style={{ borderTop: '1px solid rgba(0,212,255,0.06)' }}>
+        <NavLink to="/driver" className="block mt-1">
           {({ isActive }) => (
-            <>
-              <Smartphone size={18} className={isActive ? 'text-gold-400' : ''} />
+            <div
+              className="flex items-center gap-2.5 px-2.5 py-2 relative group transition-all duration-150 rounded-sm"
+              style={{
+                borderLeft: isActive ? '2px solid #00d4ff' : '2px solid transparent',
+                background: isActive ? 'rgba(0,212,255,0.07)' : 'transparent',
+                color: isActive ? '#00d4ff' : '#475569',
+              }}
+              onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(0,212,255,0.04)'; e.currentTarget.style.color = '#94a3b8'; } }}
+              onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; } }}
+            >
+              <Smartphone size={15} style={{ flexShrink: 0 }} />
               {!collapsed && (
-                <span className="text-sm font-medium">Driver App</span>
-              )}
-              {!collapsed && (
-                <span className="ml-auto text-xs bg-gold-500/20 text-gold-400 border border-gold-500/30 px-1.5 py-0.5 rounded-full font-semibold">
-                  PWA
-                </span>
+                <>
+                  <span
+                    className="flex-1 font-medium"
+                    style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', letterSpacing: '0.04em' }}
+                  >
+                    Driver App
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '0.58rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.1em',
+                      background: 'rgba(0,212,255,0.1)',
+                      border: '1px solid rgba(0,212,255,0.3)',
+                      borderRadius: '2px',
+                      padding: '0.1rem 0.35rem',
+                      color: '#00d4ff',
+                    }}
+                  >
+                    PWA
+                  </span>
+                </>
               )}
               {collapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-navy-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border border-navy-600">
+                <div
+                  className="absolute left-full ml-3 px-2.5 py-1.5 text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '0.7rem',
+                    background: '#010e1c',
+                    border: '1px solid rgba(0,212,255,0.2)',
+                    borderRadius: '2px',
+                  }}
+                >
                   Driver App
                 </div>
               )}
-            </>
+            </div>
           )}
         </NavLink>
       </div>
 
-      {/* User */}
-      <div className="border-t border-navy-600/60 p-3">
-        <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
-          <div className="w-8 h-8 rounded-full bg-gold-500/20 border border-gold-500/40 flex items-center justify-center flex-shrink-0">
-            <span className="text-gold-400 text-xs font-bold">
+      {/* User info */}
+      <div
+        className="p-3 flex-shrink-0"
+        style={{ borderTop: '1px solid rgba(0,212,255,0.08)' }}
+      >
+        <div className={`flex items-center gap-2.5 ${collapsed ? 'justify-center' : ''}`}>
+          {/* Avatar */}
+          <div
+            className="flex-shrink-0 flex items-center justify-center"
+            style={{
+              width: '30px',
+              height: '30px',
+              background: 'rgba(0,212,255,0.08)',
+              border: '1px solid rgba(0,212,255,0.25)',
+              borderRadius: '2px',
+            }}
+          >
+            <span
+              style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', fontWeight: 700, color: '#00d4ff' }}
+            >
               {currentUser?.name?.[0] || 'A'}
             </span>
           </div>
+
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-slate-200 truncate">{currentUser?.name || 'Admin'}</div>
-              <div className="text-xs text-slate-500 truncate">{currentUser?.role || t('common.administrator')}</div>
+              <div
+                className="text-slate-300 truncate font-medium"
+                style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem' }}
+              >
+                {currentUser?.name || 'Admin'}
+              </div>
+              <div
+                className="truncate mt-0.5"
+                style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', color: 'rgba(0,212,255,0.25)', letterSpacing: '0.08em' }}
+              >
+                {currentUser?.role || 'OPERATOR'}
+              </div>
             </div>
           )}
+
           {!collapsed && (
             <button
               onClick={logout}
-              className="text-slate-500 hover:text-red-400 transition-colors"
+              className="transition-colors"
+              style={{ color: 'rgba(0,212,255,0.2)' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,212,255,0.2)'}
               title={t('common.logout')}
             >
-              <LogOut size={16} />
+              <LogOut size={14} />
             </button>
           )}
         </div>

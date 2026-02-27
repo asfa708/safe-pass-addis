@@ -7,12 +7,12 @@ import { TrendingUp, DollarSign, Car, Users, Award, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { RIDE_STATUSES } from '../data/mockData';
 
-const COLORS = ['#FFD700', '#3b82f6', '#22c55e', '#a855f7', '#ef4444', '#06b6d4'];
+const COLORS = ['#00d4ff', '#60a5fa', '#4ade80', '#c084fc', '#f87171', '#67e8f9'];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-navy-700 border border-navy-600 rounded-lg px-3 py-2 text-sm shadow-xl">
+      <div className="px-3 py-2 text-sm shadow-xl" style={{ background: 'rgba(1,16,32,0.97)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '2px', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem' }}>
         <p className="text-slate-300 mb-1">{label}</p>
         {payload.map((p, i) => (
           <p key={i} style={{ color: p.color }}>
@@ -140,12 +140,12 @@ export default function ReportsPage() {
           <div key={label} className="card">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-400 text-sm">{label}</p>
-                <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
-                {sub && <p className="text-slate-500 text-xs mt-1">{sub}</p>}
+                <p className="text-slate-500 uppercase" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.15em' }}>{label}</p>
+                <p className={`text-3xl font-bold mt-1 ${color}`} style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
+                {sub && <p className="text-slate-600 mt-1" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem' }}>{sub}</p>}
               </div>
-              <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center`}>
-                <Icon size={20} className={color} />
+              <div className={`w-10 h-10 rounded-sm ${bg} flex items-center justify-center`} style={{ border: '1px solid rgba(0,212,255,0.1)' }}>
+                <Icon size={18} className={color} />
               </div>
             </div>
           </div>
@@ -155,21 +155,21 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue by Client */}
         <div className="card">
-          <h2 className="font-semibold text-white mb-4">Revenue by Client ($)</h2>
+          <h2 className="font-bold text-white mb-4 uppercase tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.16em', color: 'rgba(0,212,255,0.7)' }}>Revenue by Client ($)</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={clientRevenue} margin={{ top: 0, right: 10, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,212,255,0.08)" />
+              <XAxis dataKey="name" tick={{ fill: 'rgba(0,212,255,0.35)', fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} />
+              <YAxis tick={{ fill: 'rgba(0,212,255,0.35)', fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="value" name="Revenue $" fill="#FFD700" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" name="Revenue $" fill="#00d4ff" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Ride status pie */}
         <div className="card">
-          <h2 className="font-semibold text-white mb-4">Ride Status Distribution</h2>
+          <h2 className="font-bold text-white mb-4 uppercase tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.16em', color: 'rgba(0,212,255,0.7)' }}>Ride Status Distribution</h2>
           <div className="flex items-center gap-4">
             <ResponsiveContainer width="60%" height={200}>
               <PieChart>
@@ -205,30 +205,30 @@ export default function ReportsPage() {
 
         {/* Driver performance */}
         <div className="card">
-          <h2 className="font-semibold text-white mb-4">Driver Performance</h2>
+          <h2 className="font-bold text-white mb-4 uppercase tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.16em', color: 'rgba(0,212,255,0.7)' }}>Driver Performance</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={driverPerformance} margin={{ top: 0, right: 10, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,212,255,0.08)" />
+              <XAxis dataKey="name" tick={{ fill: 'rgba(0,212,255,0.35)', fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} />
+              <YAxis tick={{ fill: 'rgba(0,212,255,0.35)', fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="rides" name="Rides" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="payout" name="Payout $" fill="#22c55e" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="rides" name="Rides" fill="#60a5fa" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="payout" name="Payout $" fill="#4ade80" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Service tier */}
         <div className="card">
-          <h2 className="font-semibold text-white mb-4">Revenue by Service Tier</h2>
+          <h2 className="font-bold text-white mb-4 uppercase tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.16em', color: 'rgba(0,212,255,0.7)' }}>Revenue by Service Tier</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={tierData} margin={{ top: 0, right: 10, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,212,255,0.08)" />
+              <XAxis dataKey="name" tick={{ fill: 'rgba(0,212,255,0.35)', fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} />
+              <YAxis tick={{ fill: 'rgba(0,212,255,0.35)', fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="revenue" name="Revenue $" fill="#a855f7" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="count" name="Count" fill="#06b6d4" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" name="Revenue $" fill="#c084fc" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="count" name="Count" fill="#67e8f9" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -236,7 +236,7 @@ export default function ReportsPage() {
 
       {/* Top rides table */}
       <div className="card">
-        <h2 className="font-semibold text-white mb-4">Most Profitable Rides</h2>
+        <h2 className="font-bold text-white mb-4 uppercase tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.16em', color: 'rgba(0,212,255,0.7)' }}>Most Profitable Rides</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -274,7 +274,7 @@ export default function ReportsPage() {
 
       {/* Client revenue table */}
       <div className="card">
-        <h2 className="font-semibold text-white mb-4">Client Revenue Summary</h2>
+        <h2 className="font-bold text-white mb-4 uppercase tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.16em', color: 'rgba(0,212,255,0.7)' }}>Client Revenue Summary</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

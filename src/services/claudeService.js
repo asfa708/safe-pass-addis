@@ -106,7 +106,7 @@ export async function callClaude(model, systemPrompt, messages, signal) {
   const data = await response.json().catch(() => ({}));
 
   if (response.status === 404) {
-    throw new Error('AI features require deployment to Netlify — not available on localhost.');
+    throw new Error('AI features require deployment — not available on localhost.');
   }
 
   if (!response.ok) {
